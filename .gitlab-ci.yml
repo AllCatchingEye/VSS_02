@@ -1,0 +1,8 @@
+stages:
+    - lint
+
+lint:
+    image: gitlab.lrz.de:5005/hm/dockerhub/golangci/golangci-lint
+    stage: lint
+    script:
+        - golangci-lint run
