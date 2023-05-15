@@ -1,4 +1,4 @@
-package customer
+package main
 
 import (
 	"context"
@@ -17,6 +17,8 @@ type server struct {
 }
 
 func (*server) AddCustomer(ctx context.Context, req *api.AddCustomerRequest) (*api.AddCustomerReply, error) {
+	fmt.Println("AddCustomer called")
+	fmt.Println(req.GetCustomer())
 	return &api.AddCustomerReply{Customer: req.GetCustomer()}, nil
 }
 

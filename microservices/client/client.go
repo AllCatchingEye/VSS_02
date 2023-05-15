@@ -20,7 +20,7 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:greeter").Result()
+	address, err := rdb.Get(context.TODO(), "service:customer").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
 	}
