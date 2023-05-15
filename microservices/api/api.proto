@@ -20,5 +20,6 @@ message AddCustomerRequest {
 }
 
 message AddCustomerReply {
-
+    string name = 1;
+    Address address = 2;
 }
