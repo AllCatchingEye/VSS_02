@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/redis/go-redis/v9"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/customer/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -31,20 +31,22 @@ func main() {
 	}
 	defer conn.Close()
 
-	c := api.NewCustomerClient(conn)
+	c := api.NewCustomerServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-	r, err := c.AddCustomer(ctx, &api.AddCustomerRequest{Name: "Max Mustermann", Address: &api.Address{
-		Street:      "Mustermannstraße",
-		HouseNumber: 42,
-		Zip:         80335,
-		City:        "Munich",
-		Country:     "Germany",
+	r, err := c.AddCustomer(ctx, &api.AddCustomerRequest{Customer: &api.Customer{
+		Name: "Max Mustermann",
+		Address: &api.Address{
+			Street:  "Mustermannstraße 42",
+			Zip:     "80335",
+			City:    "Munich",
+			Country: "Germany",
+		},
 	}})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
-	log.Printf("Greeting: %s", r.GetName())
+	log.Printf("Greeting: %s", r.GetCustomer().GetName())
 
 }

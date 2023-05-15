@@ -2,24 +2,26 @@ syntax = "proto3";
 package api;
 option go_package = ".;api";
 
-service Customer {
+service CustomerService {
     rpc AddCustomer (AddCustomerRequest) returns (AddCustomerReply){}
+}
+
+message Customer {
+    string name = 1;
+    Address address = 2;
 }
 
 message Address {
     string street = 1;
-    uint32 house_number = 2;
-    uint32 zip = 3;
+    string zip = 3;
     string city = 4;
     string country = 5;
 }
 
 message AddCustomerRequest {
-    string name = 1;
-    Address address = 2;
+    Customer customer = 1;
 }
 
 message AddCustomerReply {
-    string name = 1;
-    Address address = 2;
+    Customer customer = 1;
 }
