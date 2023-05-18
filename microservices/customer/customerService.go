@@ -14,20 +14,20 @@ import (
 )
 
 type server struct {
-	api.CustomerServiceServer
-	customers map[uint32]*api.Customer
+	customerApi.CustomerServiceServer
+	customers map[uint32]*customerApi.Customer
 }
 
-func (state *server) AddCustomer(ctx context.Context, req *api.AddCustomerRequest) (*api.AddCustomerReply, error) {
+func (state *server) AddCustomer(ctx context.Context, req *customerApi.AddCustomerRequest) (*customerApi.AddCustomerReply, error) {
 	fmt.Println("AddCustomer called")
 	fmt.Println(req.GetCustomer())
 	newCustomer := req.GetCustomer()
 	customerID := generateUniqueCustomerID(state.customers)
 	state.customers[customerID] = newCustomer
-	return &api.AddCustomerReply{CustomerId: customerID}, nil
+	return &customerApi.AddCustomerReply{CustomerId: customerID}, nil
 }
 
-func (state *server) GetCustomer(ctx context.Context, req *api.GetCustomerRequest) (*api.GetCustomerReply, error) {
+func (state *server) GetCustomer(ctx context.Context, req *customerApi.GetCustomerRequest) (*customerApi.GetCustomerReply, error) {
 	fmt.Println("GetCustomer called")
 	fmt.Println(req.GetCustomerId())
 	customerId := req.GetCustomerId()
@@ -35,10 +35,10 @@ func (state *server) GetCustomer(ctx context.Context, req *api.GetCustomerReques
 	if !ok {
 		return nil, fmt.Errorf("customer not found")
 	}
-	return &api.GetCustomerReply{Customer: customer}, nil
+	return &customerApi.GetCustomerReply{Customer: customer}, nil
 }
 
-func (state *server) RemoveCustomer(ctx context.Context, req *api.RemoveCustomerRequest) (*api.RemoveCustomerReply, error) {
+func (state *server) RemoveCustomer(ctx context.Context, req *customerApi.RemoveCustomerRequest) (*customerApi.RemoveCustomerReply, error) {
 	fmt.Println("RemoveCustomer called")
 	fmt.Println(req.GetCustomerId())
 	customerId := req.GetCustomerId()
@@ -47,7 +47,7 @@ func (state *server) RemoveCustomer(ctx context.Context, req *api.RemoveCustomer
 		return nil, fmt.Errorf("customer not found")
 	}
 	delete(state.customers, customerId)
-	return &api.RemoveCustomerReply{Customer: customer}, nil
+	return &customerApi.RemoveCustomerReply{Customer: customer}, nil
 }
 
 func main() {
@@ -64,7 +64,7 @@ func main() {
 	}
 	s := grpc.NewServer()
 
-	api.RegisterCustomerServiceServer(s, &server{customers: make(map[uint32]*api.Customer)})
+	customerApi.RegisterCustomerServiceServer(s, &server{customers: make(map[uint32]*customerApi.Customer)})
 	fmt.Println("creating customer service finished")
 
 	rdb := redis.NewClient(&redis.Options{
@@ -86,7 +86,7 @@ func main() {
 }
 
 // Helper
-func generateUniqueCustomerID(customers map[uint32]*api.Customer) uint32 {
+func generateUniqueCustomerID(customers map[uint32]*customerApi.Customer) uint32 {
 	customerID := uint32(rand.Intn(1000))
 	if len(customers) == 0 {
 		return customerID

@@ -1,0 +1,82 @@
+syntax = "proto3";
+package orderApi;
+option go_package = ".;orderApi";
+
+enum DELIVERY_STATUS{
+    NOT_SENT = 0;
+    UNDER_WAY = 1;
+    DELIVERED = 2;
+}
+
+message Customer {
+    string name = 1;
+    Address address = 2;
+}
+
+message Address {
+    string street = 1;
+    string zip = 3;
+    string city = 4;
+    string country = 5;
+}
+
+message Order {
+    Customer customer = 1;
+    Products products = 2;
+    bool orderStatus = 3;
+    bool paymentStatus = 4;
+    DELIVERY_STATUS deliveryStatus = 5;
+}
+
+message Products {
+    map<uint32, int32> products = 1;
+}
+
+service OrderService {
+    rpc NewOrder (NewOrderRequest) returns (NewOrderReply){}
+    rpc GetOrder (getCustomersOrderRequest) returns (getCustomersOrderReply){}
+    rpc SetOrderStatus (setOrderStatusRequest) returns (setOrderStatusReply){}
+    rpc SetPaymentStatus (setPaymentStatusRequest) returns (setPaymentStatusReply){}
+    rpc SetDeliveryStatus (setDeliveryRequest) returns (setDeliveryReply){}
+}
+
+message NewOrderRequest {
+    uint32 customerId = 1;
+    Products products = 2;
+}
+
+message NewOrderReply {
+    Order order = 1;
+}
+
+message getCustomersOrderRequest {
+    uint32 orderId = 1;
+}
+
+message getCustomersOrderReply {
+    uint32 orderId = 1;
+}
+
+message setOrderStatusRequest {
+    bool status = 1;
+}
+
+message setOrderStatusReply {
+
+}
+
+message setPaymentStatusRequest {
+    bool status = 1;
+}
+
+message setPaymentStatusReply {
+
+}
+
+message setDeliveryRequest {
+    DELIVERY_STATUS deliveryStatus = 1;
+}
+
+message setDeliveryReply {
+
+}

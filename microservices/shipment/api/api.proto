@@ -1,9 +1,20 @@
 syntax = "proto3";
-package api;
-option go_package = ".;api";
+package shipmentApi;
+option go_package = ".;shipmentApi";
 
 service ShipmentService {
     rpc ShipmentOrder (ShipMyOrderRequest) returns (ShipMyOrderReply){}
+}
+
+enum DELIVERY_STATUS{
+    NOT_SENT = 0;
+    UNDER_WAY = 1;
+    DELIVERED = 2;
+}
+
+message Customer {
+    string name = 1;
+    Address address = 2;
 }
 
 message Address {
@@ -11,6 +22,14 @@ message Address {
     string zip = 3;
     string city = 4;
     string country = 5;
+}
+
+message Order {
+    Customer customer = 1;
+    map<uint32, int32> products = 2;
+    bool orderStatus = 3;
+    bool paymentStatus = 4;
+    DELIVERY_STATUS deliveryStatus = 5;
 }
 
 message Deliverer {
@@ -25,4 +44,6 @@ message ShipMyOrderRequest {
 }
 
 message ShipMyOrderReply {
+    uint32 orderId = 1;
+    Address address = 2;
 }

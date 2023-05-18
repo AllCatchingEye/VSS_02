@@ -36,35 +36,35 @@ func main() {
 		}
 	}(conn)
 
-	c := api.NewCustomerServiceClient(conn)
+	c := customerApi.NewCustomerServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	// Adding Customer
-	customer := &api.Customer{
+	customer := &customerApi.Customer{
 		Name: "Max Mustermann",
-		Address: &api.Address{
+		Address: &customerApi.Address{
 			Street:  "Mustermannstraße 42",
 			Zip:     "80335",
 			City:    "Munich",
 			Country: "Germany",
 		},
 	}
-	r, err := c.AddCustomer(ctx, &api.AddCustomerRequest{Customer: customer})
+	r, err := c.AddCustomer(ctx, &customerApi.AddCustomerRequest{Customer: customer})
 	if err != nil {
 		log.Fatalf("could not get: %v", err)
 	}
 	log.Printf("Getting id: %d", r.GetCustomerId())
 
 	// Getting Customer
-	r2, err := c.GetCustomer(ctx, &api.GetCustomerRequest{CustomerId: r.GetCustomerId()})
+	r2, err := c.GetCustomer(ctx, &customerApi.GetCustomerRequest{CustomerId: r.GetCustomerId()})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
 	log.Printf("Greeting: %s", r2.GetCustomer().GetName())
 
 	// Remove Customer
-	r3, err := c.RemoveCustomer(ctx, &api.RemoveCustomerRequest{CustomerId: r.GetCustomerId()})
+	r3, err := c.RemoveCustomer(ctx, &customerApi.RemoveCustomerRequest{CustomerId: r.GetCustomerId()})
 	if err != nil {
 		log.Fatalf("could not remove: %v", err)
 	}

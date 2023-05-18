@@ -1,6 +1,6 @@
 syntax = "proto3";
-package api;
-option go_package = ".;api";
+package customerApi;
+option go_package = ".;customerApi";
 
 service CustomerService {
     rpc AddCustomer (AddCustomerRequest) returns (AddCustomerReply){}
