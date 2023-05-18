@@ -29,13 +29,19 @@ func main() {
 	if err != nil {
 		log.Fatalf("did not connect: %v", err)
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection %v", err)
+		}
+	}(conn)
 
 	c := api.NewCustomerServiceClient(conn)
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	r, err := c.AddCustomer(ctx, &api.AddCustomerRequest{Customer: &api.Customer{
+	// Adding Customer
+	customer := &api.Customer{
 		Name: "Max Mustermann",
 		Address: &api.Address{
 			Street:  "Mustermannstraße 42",
@@ -43,10 +49,25 @@ func main() {
 			City:    "Munich",
 			Country: "Germany",
 		},
-	}})
+	}
+	r, err := c.AddCustomer(ctx, &api.AddCustomerRequest{Customer: customer})
+	if err != nil {
+		log.Fatalf("could not get: %v", err)
+	}
+	log.Printf("Getting id: %d", r.GetCustomerId())
+
+	// Getting Customer
+	r2, err := c.GetCustomer(ctx, &api.GetCustomerRequest{CustomerId: r.GetCustomerId()})
 	if err != nil {
 		log.Fatalf("could not greet: %v", err)
 	}
-	log.Printf("Greeting: %s", r.GetCustomer().GetName())
+	log.Printf("Greeting: %s", r2.GetCustomer().GetName())
+
+	// Remove Customer
+	r3, err := c.RemoveCustomer(ctx, &api.RemoveCustomerRequest{CustomerId: r.GetCustomerId()})
+	if err != nil {
+		log.Fatalf("could not remove: %v", err)
+	}
+	log.Printf("Removed: %s", r3.GetCustomer().GetName())
 
 }

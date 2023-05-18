@@ -4,6 +4,8 @@ option go_package = ".;api";
 
 service CustomerService {
     rpc AddCustomer (AddCustomerRequest) returns (AddCustomerReply){}
+    rpc GetCustomer (GetCustomerRequest) returns (GetCustomerReply){}
+    rpc RemoveCustomer (RemoveCustomerRequest) returns (RemoveCustomerReply){}
 }
 
 message Customer {
@@ -23,5 +25,21 @@ message AddCustomerRequest {
 }
 
 message AddCustomerReply {
+    uint32 customerId = 1;
+}
+
+message GetCustomerRequest {
+    uint32 customerId = 1;
+}
+
+message GetCustomerReply {
+    Customer customer = 1;
+}
+
+message RemoveCustomerRequest {
+    uint32 customerId = 1;
+}
+
+message RemoveCustomerReply {
     Customer customer = 1;
 }

@@ -8,18 +8,46 @@ import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/customer/api"
 	"google.golang.org/grpc"
 	"log"
+	"math/rand"
 	"net"
 	"time"
 )
 
 type server struct {
 	api.CustomerServiceServer
+	customers map[uint32]*api.Customer
 }
 
-func (*server) AddCustomer(ctx context.Context, req *api.AddCustomerRequest) (*api.AddCustomerReply, error) {
+func (state *server) AddCustomer(ctx context.Context, req *api.AddCustomerRequest) (*api.AddCustomerReply, error) {
 	fmt.Println("AddCustomer called")
 	fmt.Println(req.GetCustomer())
-	return &api.AddCustomerReply{Customer: req.GetCustomer()}, nil
+	newCustomer := req.GetCustomer()
+	customerID := generateUniqueCustomerID(state.customers)
+	state.customers[customerID] = newCustomer
+	return &api.AddCustomerReply{CustomerId: customerID}, nil
+}
+
+func (state *server) GetCustomer(ctx context.Context, req *api.GetCustomerRequest) (*api.GetCustomerReply, error) {
+	fmt.Println("GetCustomer called")
+	fmt.Println(req.GetCustomerId())
+	customerId := req.GetCustomerId()
+	customer, ok := state.customers[customerId]
+	if !ok {
+		return nil, fmt.Errorf("customer not found")
+	}
+	return &api.GetCustomerReply{Customer: customer}, nil
+}
+
+func (state *server) RemoveCustomer(ctx context.Context, req *api.RemoveCustomerRequest) (*api.RemoveCustomerReply, error) {
+	fmt.Println("RemoveCustomer called")
+	fmt.Println(req.GetCustomerId())
+	customerId := req.GetCustomerId()
+	customer, ok := state.customers[customerId]
+	if !ok {
+		return nil, fmt.Errorf("customer not found")
+	}
+	delete(state.customers, customerId)
+	return &api.RemoveCustomerReply{Customer: customer}, nil
 }
 
 func main() {
@@ -36,7 +64,8 @@ func main() {
 	}
 	s := grpc.NewServer()
 
-	api.RegisterCustomerServiceServer(s, &server{})
+	api.RegisterCustomerServiceServer(s, &server{customers: make(map[uint32]*api.Customer)})
+	fmt.Println("creating customer service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -44,6 +73,7 @@ func main() {
 	})
 
 	go func() {
+		fmt.Println("starting to update redis")
 		for {
 			rdb.Set(context.TODO(), "service:customer", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
@@ -53,4 +83,18 @@ func main() {
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+}
+
+// Helper
+func generateUniqueCustomerID(customers map[uint32]*api.Customer) uint32 {
+	customerID := uint32(rand.Intn(1000))
+	if len(customers) == 0 {
+		return customerID
+	}
+	_, exists := customers[customerID]
+	for exists {
+		customerID = uint32(rand.Intn(1000))
+		_, exists = customers[customerID]
+	}
+	return customerID
 }
