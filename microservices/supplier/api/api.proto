@@ -1,0 +1,78 @@
+syntax = "proto3";
+package supplierApi;
+option go_package = ".;supplierApi";
+
+service SupplierService {
+    rpc AddSupplier (AddSupplierRequest) returns (AddSupplierReply){}
+    rpc GetSupplier (GetSupplierRequest) returns (GetSupplierReply){}
+    rpc RemoveSupplier (RemoveSupplierRequest) returns (RemoveSupplierReply){}
+    rpc AddProducts (AddProductsRequest) returns (AddProductsReply){}
+    rpc RemoveProducts (RemoveProductsRequest) returns (RemoveProductsReply){}
+    rpc OrderProduct (OrderProductRequest) returns (OrderProductReply){}
+}
+
+message Address {
+    string street = 1;
+    string zip = 3;
+    string city = 4;
+    string country = 5;
+}
+
+message Supplier {
+    string name = 1;
+    Address address = 2;
+    repeated uint32 products = 3;
+}
+
+message AddSupplierRequest {
+    Supplier supplier = 1;
+}
+
+message AddSupplierReply {
+    uint32 supplierId = 1;
+}
+
+message GetSupplierRequest {
+    uint32 supplierId = 1;
+}
+
+message GetSupplierReply {
+    Supplier supplier = 1;
+}
+
+message RemoveSupplierRequest {
+    uint32 supplierId = 1;
+}
+
+message RemoveSupplierReply {
+    Supplier supplier = 1;
+}
+
+message AddProductsRequest {
+    uint32 supplierId = 1;
+    repeated uint32 products = 2;
+}
+
+message AddProductsReply {
+    Supplier supplier = 1;
+}
+
+message RemoveProductsRequest {
+    uint32 supplierId = 1;
+    repeated uint32 products = 2;
+}
+
+message RemoveProductsReply {
+    Supplier supplier = 1;
+}
+
+message OrderProductRequest {
+    uint32 supplierId = 1;
+    uint32 productId = 2;
+    uint32 amount = 3;
+}
+
+message OrderProductReply {
+    uint32 productId = 1;
+    uint32 amount = 2;
+}
