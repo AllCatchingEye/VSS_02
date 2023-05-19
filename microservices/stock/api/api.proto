@@ -1,0 +1,41 @@
+syntax = "proto3";
+package stockApi;
+option go_package = ".;stockApi";
+
+service StockService {
+    rpc AddProducts (AddProductsRequest) returns (AddProductsReply){}
+    rpc GetProducts (GetProductsRequest) returns (GetProductsReply){}
+    rpc RemoveProduct (RemoveProductRequest) returns (RemoveProductReply){}
+}
+
+message Product {
+    string name = 1;
+    string description = 2;
+    double price = 3;
+    uint32 supplier = 4;
+}
+
+message AddProductsRequest {
+    repeated Product products = 1;
+}
+
+message AddProductsReply {
+    repeated uint32 productIds = 1;
+}
+
+message GetProductsRequest {
+    repeated uint32 productIds = 1;
+}
+
+message GetProductsReply {
+    repeated Product products = 1;
+}
+
+message RemoveProductRequest {
+    uint32 productId = 1;
+}
+
+message RemoveProductReply {
+    Product product = 1;
+}
+

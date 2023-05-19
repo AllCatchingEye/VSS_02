@@ -21,7 +21,7 @@ message Address {
 }
 
 message Order {
-    Customer customer = 1;
+    uint32 customer = 1;
     Products products = 2;
     bool orderStatus = 3;
     bool paymentStatus = 4;

@@ -15,6 +15,7 @@ import (
 	"time"
 )
 
+// TODO: Ist es erlaubt hier die anderen Typen zu importieren?
 type server struct {
 	shipmentApi.ShipmentServiceServer
 	sentOrders []uint32
@@ -27,7 +28,7 @@ func (*server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRe
 
 	return &shipmentApi.ShipMyOrderReply{
 		OrderId: orderId,
-		Address: address,
+		Address: ConvertToShipmentAddress(address),
 	}, nil
 }
 
@@ -103,7 +104,7 @@ func getCustomersOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest)
 
 func main() {
 	flagHost := flag.String("host", "127.0.0.1", "address of shipment service")
-	flagPort := flag.String("port", "50052", "port of shipment service")
+	flagPort := flag.String("port", "50054", "port of shipment service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -131,5 +132,15 @@ func main() {
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
+	}
+}
+
+// Helper
+func ConvertToShipmentAddress(address *customerApi.Address) *shipmentApi.Address {
+	return &shipmentApi.Address{
+		Street:  address.GetStreet(),
+		Zip:     address.GetZip(),
+		City:    address.GetCity(),
+		Country: address.GetCountry(),
 	}
 }

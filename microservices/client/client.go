@@ -1,10 +1,11 @@
-package main
+package client
 
 import (
 	"context"
 	"flag"
+	"fmt"
 	"github.com/redis/go-redis/v9"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/customer/api"
+	customerApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/customer/api"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -40,34 +41,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	// Adding Customer
-	customer := &customerApi.Customer{
-		Name: "Max Mustermann",
-		Address: &customerApi.Address{
-			Street:  "Mustermannstraße 42",
-			Zip:     "80335",
-			City:    "Munich",
-			Country: "Germany",
-		},
-	}
-	r, err := c.AddCustomer(ctx, &customerApi.AddCustomerRequest{Customer: customer})
-	if err != nil {
-		log.Fatalf("could not get: %v", err)
-	}
-	log.Printf("Getting id: %d", r.GetCustomerId())
 
-	// Getting Customer
-	r2, err := c.GetCustomer(ctx, &customerApi.GetCustomerRequest{CustomerId: r.GetCustomerId()})
-	if err != nil {
-		log.Fatalf("could not greet: %v", err)
-	}
-	log.Printf("Greeting: %s", r2.GetCustomer().GetName())
-
-	// Remove Customer
-	r3, err := c.RemoveCustomer(ctx, &customerApi.RemoveCustomerRequest{CustomerId: r.GetCustomerId()})
-	if err != nil {
-		log.Fatalf("could not remove: %v", err)
-	}
-	log.Printf("Removed: %s", r3.GetCustomer().GetName())
-
+	fmt.Println("this is c: ", c)
+	fmt.Println("this is ctx: ", ctx)
 }
