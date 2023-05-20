@@ -132,7 +132,7 @@ func main() {
 	})
 
 	go func() {
-		fmt.Println("starting to update redis")
+		fmt.Println("starting to update redis for supplier service")
 		for {
 			rdb.Set(context.TODO(), "service:supplier", address, 13*time.Second)
 			time.Sleep(10 * time.Second)

@@ -1,4 +1,4 @@
-package shipment
+package main
 
 import (
 	"context"
@@ -21,10 +21,12 @@ type server struct {
 	sentOrders []uint32
 }
 
-func (*server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
+func (state *server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
 	address := getCustomerAddress(ctx, req)
 
 	orderId := getCustomersOrder(ctx, req)
+
+	state.sentOrders = append(state.sentOrders, orderId)
 
 	return &shipmentApi.ShipMyOrderReply{
 		OrderId: orderId,
