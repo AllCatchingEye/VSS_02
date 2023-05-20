@@ -2,6 +2,14 @@ syntax = "proto3";
 package orderApi;
 option go_package = ".;orderApi";
 
+service OrderService {
+    rpc NewOrder (NewOrderRequest) returns (NewOrderReply){}
+    rpc GetOrder (GetOrderRequest) returns (GetOrderReply){}
+    rpc SetOrderStatus (SetOrderStatusRequest) returns (SetOrderStatusReply){}
+    rpc SetPaymentStatus (SetPaymentStatusRequest) returns (SetPaymentStatusReply){}
+    rpc SetDeliveryStatus (SetDeliveryStatusRequest) returns (SetDeliveryStatusReply){}
+}
+
 enum DELIVERY_STATUS{
     NOT_SENT = 0;
     UNDER_WAY = 1;
@@ -22,61 +30,55 @@ message Address {
 
 message Order {
     uint32 customer = 1;
-    Products products = 2;
+    map<uint32, uint32> products = 2;
     bool orderStatus = 3;
     bool paymentStatus = 4;
     DELIVERY_STATUS deliveryStatus = 5;
 }
 
-message Products {
-    map<uint32, int32> products = 1;
-}
-
-service OrderService {
-    rpc NewOrder (NewOrderRequest) returns (NewOrderReply){}
-    rpc GetOrder (getCustomersOrderRequest) returns (getCustomersOrderReply){}
-    rpc SetOrderStatus (setOrderStatusRequest) returns (setOrderStatusReply){}
-    rpc SetPaymentStatus (setPaymentStatusRequest) returns (setPaymentStatusReply){}
-    rpc SetDeliveryStatus (setDeliveryRequest) returns (setDeliveryReply){}
-}
-
 message NewOrderRequest {
     uint32 customerId = 1;
-    Products products = 2;
+    map<uint32, uint32> products = 2;
 }
 
 message NewOrderReply {
-    Order order = 1;
-}
-
-message getCustomersOrderRequest {
     uint32 orderId = 1;
+    Order order = 2;
 }
 
-message getCustomersOrderReply {
+message GetOrderRequest {
+    uint32 customerId = 1;
+    uint32 orderId = 2;
+}
+
+message GetOrderReply {
     uint32 orderId = 1;
+    Order order = 2;
 }
 
-message setOrderStatusRequest {
-    bool status = 1;
+message SetOrderStatusRequest {
+    uint32 orderId = 1;
+    bool status = 2;
 }
 
-message setOrderStatusReply {
-
+message SetOrderStatusReply {
+    bool orderStatus = 1;
 }
 
-message setPaymentStatusRequest {
-    bool status = 1;
+message SetPaymentStatusRequest {
+    uint32 orderId = 1;
+    bool status = 2;
 }
 
-message setPaymentStatusReply {
-
+message SetPaymentStatusReply {
+    bool paymentStatus = 1;
 }
 
-message setDeliveryRequest {
+message SetDeliveryStatusRequest {
+    uint32 orderId = 1;
+    DELIVERY_STATUS status = 2;
+}
+
+message SetDeliveryStatusReply {
     DELIVERY_STATUS deliveryStatus = 1;
-}
-
-message setDeliveryReply {
-
 }
