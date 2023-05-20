@@ -96,7 +96,7 @@ func getCustomersOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest)
 
 	c := orderApi.NewOrderServiceClient(conn)
 
-	res, err := c.GetOrder(ctx, &orderApi.GetCustomersOrderRequest{OrderId: req.CustomerId})
+	res, err := c.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: req.CustomerId, OrderId: req.OrderId})
 	if err != nil {
 		log.Fatalf("could not find customerId %d: %v", req.CustomerId, err)
 	}
@@ -137,7 +137,7 @@ func main() {
 	}
 }
 
-// Helper
+// ConvertToShipmentAddress Helper
 func ConvertToShipmentAddress(address *customerApi.Address) *shipmentApi.Address {
 	return &shipmentApi.Address{
 		Street:  address.GetStreet(),
