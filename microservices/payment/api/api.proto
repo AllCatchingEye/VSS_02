@@ -1,0 +1,26 @@
+syntax = "proto3";
+package paymentApi;
+option go_package = ".;paymentApi";
+
+service PaymentService {
+    rpc PayMyOrder (PayMyOrderRequest) returns (PayMyOrderReply){}
+    rpc IsOrderPayed (IsOrderPayedRequest) returns (IsOrderPayedReply){}
+}
+
+message PayMyOrderRequest {
+    uint32 customerId = 1;
+    uint32 orderId = 2;
+}
+
+//TODO: add more fields?
+message PayMyOrderReply {
+    uint32 orderId = 1;
+}
+
+message IsOrderPayedRequest {
+    uint32 orderId = 1;
+}
+
+message IsOrderPayedReply {
+    bool isPayed = 1;
+}
