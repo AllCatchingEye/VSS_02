@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.12
-// source: microservices/supplier/api/api.proto
+// source: microservices/api/supplierApi/supplierApi.proto
 
 package supplierApi
 
@@ -290,5 +290,5 @@ var SupplierService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "microservices/supplier/api/api.proto",
+	Metadata: "microservices/api/supplierApi/supplierApi.proto",
 }

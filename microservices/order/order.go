@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	orderApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/order/api"
+	orderApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -21,7 +21,7 @@ type server struct {
 func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest) (*orderApi.NewOrderReply, error) {
 	fmt.Println("NewOrder called")
 	fmt.Println(req)
-	//TODO: check if customer exists (call customer service)
+	//TODO: check if customerApi exists (call customerApi service)
 	order := &orderApi.Order{
 		Customer:       req.GetCustomerId(),
 		Products:       req.GetProducts(),
@@ -40,7 +40,7 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
-		return nil, fmt.Errorf("order not found")
+		return nil, fmt.Errorf("orderApi not found")
 	}
 	return &orderApi.GetOrderReply{OrderId: orderID, Order: order}, nil
 }
@@ -51,7 +51,7 @@ func (state *server) SetOrderStatus(ctx context.Context, req *orderApi.SetOrderS
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
-		return nil, fmt.Errorf("order not found")
+		return nil, fmt.Errorf("orderApi not found")
 	}
 	order.OrderStatus = req.GetStatus()
 	return &orderApi.SetOrderStatusReply{OrderStatus: order.GetOrderStatus()}, nil
@@ -63,7 +63,7 @@ func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaym
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
-		return nil, fmt.Errorf("order not found")
+		return nil, fmt.Errorf("orderApi not found")
 	}
 	order.PaymentStatus = req.GetStatus()
 	return &orderApi.SetPaymentStatusReply{PaymentStatus: order.GetPaymentStatus()}, nil
@@ -75,17 +75,17 @@ func (state *server) SetDeliveryStatus(ctx context.Context, req *orderApi.SetDel
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
-		return nil, fmt.Errorf("order not found")
+		return nil, fmt.Errorf("orderApi not found")
 	}
 	order.DeliveryStatus = req.GetStatus()
 	return &orderApi.SetDeliveryStatusReply{DeliveryStatus: order.GetDeliveryStatus()}, nil
 }
 
-//TODO: implement interface for stock service
+//TODO: implement interface for stockApi service
 
 func main() {
-	flagHost := flag.String("host", "127.0.0.1", "address of order service")
-	flagPort := flag.String("port", "50052", "port of order service")
+	flagHost := flag.String("host", "127.0.0.1", "address of orderApi service")
+	flagPort := flag.String("port", "50052", "port of orderApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -98,7 +98,7 @@ func main() {
 	s := grpc.NewServer()
 
 	orderApi.RegisterOrderServiceServer(s, &server{orders: make(map[uint32]*orderApi.Order)})
-	fmt.Println("creating order service finished")
+	fmt.Println("creating orderApi service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -106,9 +106,9 @@ func main() {
 	})
 
 	go func() {
-		fmt.Println("starting to update redis for order service")
+		fmt.Println("starting to update redis for orderApi service")
 		for {
-			rdb.Set(context.TODO(), "service:order", address, 13*time.Second)
+			rdb.Set(context.TODO(), "service:orderApi", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
 		}
 	}()

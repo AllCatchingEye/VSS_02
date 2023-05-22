@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	supplierApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/supplier/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -33,7 +33,7 @@ func (state *server) GetSupplier(ctx context.Context, req *supplierApi.GetSuppli
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplier not found")
+		return nil, fmt.Errorf("supplierApi not found")
 	}
 	return &supplierApi.GetSupplierReply{Supplier: supplier}, nil
 }
@@ -44,7 +44,7 @@ func (state *server) RemoveSupplier(ctx context.Context, req *supplierApi.Remove
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplier not found")
+		return nil, fmt.Errorf("supplierApi not found")
 	}
 	delete(state.supplier, supplierId)
 	return &supplierApi.RemoveSupplierReply{Supplier: supplier}, nil
@@ -56,12 +56,12 @@ func (state *server) AddProducts(ctx context.Context, req *supplierApi.AddProduc
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplier not found")
+		return nil, fmt.Errorf("supplierApi not found")
 	}
 	for _, productToAdd := range req.GetProducts() {
 		supplier.Products = append(supplier.Products, productToAdd)
 	}
-	//supplier.Products = append(supplier.Products, req.GetProducts()...)
+	//supplierApi.Products = append(supplierApi.Products, req.GetProducts()...)
 	return &supplierApi.AddProductsReply{Supplier: supplier}, nil
 }
 
@@ -71,7 +71,7 @@ func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.Remove
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplier not found")
+		return nil, fmt.Errorf("supplierApi not found")
 	}
 	for _, productToRemove := range req.GetProducts() {
 		for i, productOfSupplier := range supplier.Products {
@@ -90,11 +90,11 @@ func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderPro
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplier not found")
+		return nil, fmt.Errorf("supplierApi not found")
 	}
 	productToOrder := req.GetProductId()
 	amount := req.GetAmount()
-	// find product id in products of supplier, if not found return error
+	// find product id in products of supplierApi, if not found return error
 	found := false
 	for _, productOfSupplier := range supplier.Products {
 		if productOfSupplier == productToOrder {
@@ -110,8 +110,8 @@ func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderPro
 }
 
 func main() {
-	flagHost := flag.String("host", "127.0.0.1", "address of supplier service")
-	flagPort := flag.String("port", "50056", "port of supplier service")
+	flagHost := flag.String("host", "127.0.0.1", "address of supplierApi service")
+	flagPort := flag.String("port", "50056", "port of supplierApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -124,7 +124,7 @@ func main() {
 	s := grpc.NewServer()
 
 	supplierApi.RegisterSupplierServiceServer(s, &server{supplier: make(map[uint32]*supplierApi.Supplier)})
-	fmt.Println("creating supplier service finished")
+	fmt.Println("creating supplierApi service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -132,9 +132,9 @@ func main() {
 	})
 
 	go func() {
-		fmt.Println("starting to update redis for supplier service")
+		fmt.Println("starting to update redis for supplierApi service")
 		for {
-			rdb.Set(context.TODO(), "service:supplier", address, 13*time.Second)
+			rdb.Set(context.TODO(), "service:supplierApi", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
 		}
 	}()

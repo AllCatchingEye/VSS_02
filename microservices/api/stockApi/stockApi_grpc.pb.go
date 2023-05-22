@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.12
-// source: microservices/stock/api/api.proto
+// source: microservices/api/stockApi/stockApi.proto
 
 package stockApi
 
@@ -179,5 +179,5 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "microservices/stock/api/api.proto",
+	Metadata: "microservices/api/stockApi/stockApi.proto",
 }

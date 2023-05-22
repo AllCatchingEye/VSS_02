@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/redis/go-redis/v9"
-	paymentApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/payment/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -20,9 +20,9 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:payment").Result()
+	address, err := rdb.Get(context.TODO(), "service:paymentApi").Result()
 	if err != nil {
-		log.Fatalf("error while trying to get the payment service address: %v", err)
+		log.Fatalf("error while trying to get the paymentApi service address: %v", err)
 	}
 
 	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
@@ -45,12 +45,12 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not get: %v", err)
 	}
-	log.Printf("order got payed, id: %d", r.GetOrderId())
+	log.Printf("orderApi got payed, id: %d", r.GetOrderId())
 
-	// check payment status
+	// check paymentApi status
 	r2, err := c.IsOrderPayed(ctx, &paymentApi.IsOrderPayedRequest{OrderId: 1})
 	if err != nil {
 		log.Fatalf("could not get: %v", err)
 	}
-	log.Printf("order is payed: %t", r2.GetIsPayed())
+	log.Printf("orderApi is payed: %t", r2.GetIsPayed())
 }

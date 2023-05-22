@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	stockApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/stock/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -59,8 +59,8 @@ func (state *server) RemoveProduct(ctx context.Context, req *stockApi.RemoveProd
 }
 
 func main() {
-	flagHost := flag.String("host", "127.0.0.1", "address of customer service")
-	flagPort := flag.String("port", "50055", "port of customer service")
+	flagHost := flag.String("host", "127.0.0.1", "address of customerApi service")
+	flagPort := flag.String("port", "50055", "port of customerApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -73,7 +73,7 @@ func main() {
 	s := grpc.NewServer()
 
 	stockApi.RegisterStockServiceServer(s, &server{products: make(map[uint32]*stockApi.Product)})
-	fmt.Println("creating stock service finished")
+	fmt.Println("creating stockApi service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -83,7 +83,7 @@ func main() {
 	go func() {
 		fmt.Println("starting to update redis")
 		for {
-			rdb.Set(context.TODO(), "service:stock", address, 13*time.Second)
+			rdb.Set(context.TODO(), "service:stockApi", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
 		}
 	}()

@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	customerApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/customer/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -21,7 +21,7 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:customer").Result()
+	address, err := rdb.Get(context.TODO(), "service:customerApi").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
 	}

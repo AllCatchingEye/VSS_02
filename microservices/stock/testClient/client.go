@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	stockApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/stock/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -21,9 +21,9 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:stock").Result()
+	address, err := rdb.Get(context.TODO(), "service:stockApi").Result()
 	if err != nil {
-		log.Fatalf("error while trying to get the stock service address: %v", err)
+		log.Fatalf("error while trying to get the stockApi service address: %v", err)
 	}
 
 	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())

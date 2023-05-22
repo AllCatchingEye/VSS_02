@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	paymentApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/payment/api"
+	paymentApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -38,8 +38,8 @@ func (state *server) IsOrderPayed(ctx context.Context, req *paymentApi.IsOrderPa
 }
 
 func main() {
-	flagHost := flag.String("host", "127.0.0.1", "address of shipment service")
-	flagPort := flag.String("port", "50053", "port of shipment service")
+	flagHost := flag.String("host", "127.0.0.1", "address of shipmentApi service")
+	flagPort := flag.String("port", "50053", "port of shipmentApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -52,7 +52,7 @@ func main() {
 	s := grpc.NewServer()
 
 	paymentApi.RegisterPaymentServiceServer(s, &server{})
-	fmt.Println("creating payment service finished")
+	fmt.Println("creating paymentApi service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -60,9 +60,9 @@ func main() {
 	})
 
 	go func() {
-		fmt.Println("starting to update redis for payment service")
+		fmt.Println("starting to update redis for paymentApi service")
 		for {
-			rdb.Set(context.TODO(), "service:payment", address, 13*time.Second)
+			rdb.Set(context.TODO(), "service:paymentApi", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
 		}
 	}()

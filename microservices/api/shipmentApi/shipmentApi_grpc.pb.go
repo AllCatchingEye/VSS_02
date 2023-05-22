@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.12
-// source: microservices/shipment/api/api.proto
+// source: microservices/api/shipmentApi/shipmentApi.proto
 
 package shipmentApi
 
@@ -105,5 +105,5 @@ var ShipmentService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "microservices/shipment/api/api.proto",
+	Metadata: "microservices/api/shipmentApi/shipmentApi.proto",
 }

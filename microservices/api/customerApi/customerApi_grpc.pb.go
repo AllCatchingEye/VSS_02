@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.3.0
 // - protoc             v3.21.12
-// source: microservices/customer/api/api.proto
+// source: microservices/api/customerApi/customerApi.proto
 
 package customerApi
 
@@ -179,5 +179,5 @@ var CustomerService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "microservices/customer/api/api.proto",
+	Metadata: "microservices/api/customerApi/customerApi.proto",
 }

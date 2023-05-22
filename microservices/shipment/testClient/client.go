@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/redis/go-redis/v9"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/shipment/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -20,7 +20,7 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:shipment").Result()
+	address, err := rdb.Get(context.TODO(), "service:shipmentApi").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
 	}
@@ -40,10 +40,9 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	// Adding Customer
-	r, err := c.ShipmentOrder(ctx, &shipmentApi.ShipMyOrderRequest{CustomerId: 1, OrderId: 1})
-	if err != nil {
-		log.Fatalf("could not get: %v", err)
-	}
-	log.Printf("Sent order with id: %d", r.GetOrderId())
+
+	// Ship Order
+	log.Printf("shipment client: %v\n", c)
+	log.Printf("context: %v\n", ctx)
+	log.Println("Done")
 }

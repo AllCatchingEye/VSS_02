@@ -5,9 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/customer/api"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/order/api"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/shipment/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -18,32 +18,22 @@ import (
 // TODO: Ist es erlaubt hier die anderen Typen zu importieren?
 type server struct {
 	shipmentApi.ShipmentServiceServer
+	redis      *redis.Client
 	sentOrders []uint32
 }
 
 func (state *server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
-	address := getCustomerAddress(ctx, req)
+	address := state.getCustomerAddress(ctx, req)
 
-	orderId := getCustomersOrder(ctx, req)
+	orderId := state.getCustomersOrder(ctx, req)
 
 	state.sentOrders = append(state.sentOrders, orderId)
 
-	return &shipmentApi.ShipMyOrderReply{
-		OrderId: orderId,
-		Address: ConvertToShipmentAddress(address),
-	}, nil
+	return &shipmentApi.ShipMyOrderReply{OrderId: orderId, Address: ConvertToShipmentAddress(address)}, nil
 }
 
-func getCustomerAddress(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) *customerApi.Address {
-	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
-	flag.Parse()
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     *flagRedis,
-		Password: "",
-	})
-
-	address, err := rdb.Get(context.TODO(), "service:customer").Result()
+func (state *server) getCustomerAddress(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) *customerApi.Address {
+	address, err := state.redis.Get(context.TODO(), "service:customerApi").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
 	}
@@ -69,16 +59,8 @@ func getCustomerAddress(ctx context.Context, req *shipmentApi.ShipMyOrderRequest
 	return res.Customer.Address
 }
 
-func getCustomersOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) uint32 {
-	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
-	flag.Parse()
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     *flagRedis,
-		Password: "",
-	})
-
-	address, err := rdb.Get(context.TODO(), "service:order").Result()
+func (state *server) getCustomersOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) uint32 {
+	address, err := state.redis.Get(context.TODO(), "service:orderApi").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
 	}
@@ -105,8 +87,8 @@ func getCustomersOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest)
 }
 
 func main() {
-	flagHost := flag.String("host", "127.0.0.1", "address of shipment service")
-	flagPort := flag.String("port", "50054", "port of shipment service")
+	flagHost := flag.String("host", "127.0.0.1", "address of shipmentApi service")
+	flagPort := flag.String("port", "50054", "port of shipmentApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -118,19 +100,21 @@ func main() {
 	}
 	s := grpc.NewServer()
 
-	shipmentApi.RegisterShipmentServiceServer(s, &server{})
-
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
 		Password: "",
 	})
 
 	go func() {
+		fmt.Println("starting to update redis")
 		for {
-			rdb.Set(context.TODO(), "service:shipment", address, 13*time.Second)
+			rdb.Set(context.TODO(), "service:shipmentApi", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
 		}
 	}()
+
+	shipmentApi.RegisterShipmentServiceServer(s, &server{redis: rdb})
+	fmt.Println("creating shipmentApi service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

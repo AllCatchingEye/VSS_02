@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
-	orderApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/order/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -21,9 +21,9 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:order").Result()
+	address, err := rdb.Get(context.TODO(), "service:orderApi").Result()
 	if err != nil {
-		log.Fatalf("error while trying to get the order service address: %v", err)
+		log.Fatalf("error while trying to get the orderApi service address: %v", err)
 	}
 
 	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
@@ -49,23 +49,23 @@ func main() {
 
 	r, err := c.NewOrder(ctx, &orderApi.NewOrderRequest{CustomerId: 1, Products: order})
 	if err != nil {
-		log.Fatalf("could not create order: %v", err)
+		log.Fatalf("could not create orderApi: %v", err)
 	}
-	log.Printf("order got payed, id: %#v", r.GetOrderId())
+	log.Printf("orderApi got payed, id: %#v", r.GetOrderId())
 
 	// Set Order Status
 	r2, err := c.SetOrderStatus(ctx, &orderApi.SetOrderStatusRequest{OrderId: r.GetOrderId(), Status: true})
 	if err != nil {
-		log.Fatalf("could not set order status: %v", err)
+		log.Fatalf("could not set orderApi status: %v", err)
 	}
-	log.Printf("order status set to: %#v", r2.GetOrderStatus())
+	log.Printf("orderApi status set to: %#v", r2.GetOrderStatus())
 
 	// Set Payment Status
 	r3, err := c.SetPaymentStatus(ctx, &orderApi.SetPaymentStatusRequest{OrderId: r.GetOrderId(), Status: true})
 	if err != nil {
-		log.Fatalf("could not set payment status: %v", err)
+		log.Fatalf("could not set paymentApi status: %v", err)
 	}
-	log.Printf("payment status set to: %#v", r3.GetPaymentStatus())
+	log.Printf("paymentApi status set to: %#v", r3.GetPaymentStatus())
 
 	// Set Delivery Status
 	r4, err := c.SetDeliveryStatus(ctx, &orderApi.SetDeliveryStatusRequest{OrderId: r.GetOrderId(), Status: orderApi.DELIVERY_STATUS(1)})
@@ -77,9 +77,9 @@ func main() {
 	// Get Order
 	r5, err := c.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: 1, OrderId: r.GetOrderId()})
 	if err != nil {
-		log.Fatalf("could not get order: %v", err)
+		log.Fatalf("could not get orderApi: %v", err)
 	}
-	log.Printf("order: %#v", r5.GetOrder())
+	log.Printf("orderApi: %#v", r5.GetOrder())
 
 	fmt.Println("Done")
 }

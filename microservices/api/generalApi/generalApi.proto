@@ -1,0 +1,15 @@
+syntax = "proto3";
+package generalApi;
+option go_package = ".;generalApi";
+
+message Address {
+    string street = 1;
+    string zip = 3;
+    string city = 4;
+    string country = 5;
+}
+
+message Customer {
+    string name = 1;
+    Address address = 2;
+}

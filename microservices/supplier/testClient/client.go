@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/redis/go-redis/v9"
-	supplierApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/supplier/api"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -20,7 +20,7 @@ func main() {
 		Password: "",
 	})
 
-	address, err := rdb.Get(context.TODO(), "service:supplier").Result()
+	address, err := rdb.Get(context.TODO(), "service:supplierApi").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
 	}
@@ -53,16 +53,16 @@ func main() {
 	}
 	r, err := c.AddSupplier(ctx, &supplierApi.AddSupplierRequest{Supplier: supplier})
 	if err != nil {
-		log.Fatalf("could add supplier: %v", err)
+		log.Fatalf("could add supplierApi: %v", err)
 	}
 	log.Printf("Getting id: %d", r.GetSupplierId())
 
 	// Getting Supplier
 	r2, err := c.GetSupplier(ctx, &supplierApi.GetSupplierRequest{SupplierId: r.GetSupplierId()})
 	if err != nil {
-		log.Fatalf("could get supplier: %v", err)
+		log.Fatalf("could get supplierApi: %v", err)
 	}
-	log.Printf("Getting supplier: %v", r2.GetSupplier().GetName())
+	log.Printf("Getting supplierApi: %v", r2.GetSupplier().GetName())
 
 	// Add Products
 	r3, err := c.AddProducts(ctx, &supplierApi.AddProductsRequest{SupplierId: r.GetSupplierId(), Products: []uint32{3, 4}})
@@ -81,9 +81,9 @@ func main() {
 	// Remove Supplier
 	r5, err := c.RemoveSupplier(ctx, &supplierApi.RemoveSupplierRequest{SupplierId: r.GetSupplierId()})
 	if err != nil {
-		log.Fatalf("could remove supplier: %v", err)
+		log.Fatalf("could remove supplierApi: %v", err)
 	}
-	log.Printf("Removed supplier: %v", r5.GetSupplier())
+	log.Printf("Removed supplierApi: %v", r5.GetSupplier())
 
 	log.Printf("Done")
 }
