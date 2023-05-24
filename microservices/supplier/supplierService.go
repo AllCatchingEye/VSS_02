@@ -4,23 +4,30 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
 	"net"
+	"reflect"
 	"time"
 )
 
 type server struct {
 	supplierApi.SupplierServiceServer
+	nats     *nats.Conn
 	supplier map[uint32]*supplierApi.Supplier
 }
 
 func (state *server) AddSupplier(ctx context.Context, req *supplierApi.AddSupplierRequest) (*supplierApi.AddSupplierReply, error) {
 	fmt.Println("AddSupplier called")
 	fmt.Println(req.GetSupplier())
+	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.supplierApi: cannot publish event")
+	}
 	newSupplier := req.GetSupplier()
 	supplierID := generateUniqueSupplierID(state.supplier)
 	state.supplier[supplierID] = newSupplier
@@ -30,6 +37,10 @@ func (state *server) AddSupplier(ctx context.Context, req *supplierApi.AddSuppli
 func (state *server) GetSupplier(ctx context.Context, req *supplierApi.GetSupplierRequest) (*supplierApi.GetSupplierReply, error) {
 	fmt.Println("GetSupplier called")
 	fmt.Println(req.GetSupplierId())
+	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.supplierApi: cannot publish event")
+	}
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
@@ -41,6 +52,10 @@ func (state *server) GetSupplier(ctx context.Context, req *supplierApi.GetSuppli
 func (state *server) RemoveSupplier(ctx context.Context, req *supplierApi.RemoveSupplierRequest) (*supplierApi.RemoveSupplierReply, error) {
 	fmt.Println("RemoveSupplier called")
 	fmt.Println(req.GetSupplierId())
+	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.supplierApi: cannot publish event")
+	}
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
@@ -53,6 +68,10 @@ func (state *server) RemoveSupplier(ctx context.Context, req *supplierApi.Remove
 func (state *server) AddProducts(ctx context.Context, req *supplierApi.AddProductsRequest) (*supplierApi.AddProductsReply, error) {
 	fmt.Println("AddProductsRequest called")
 	fmt.Println(req.GetSupplierId())
+	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.supplierApi: cannot publish event")
+	}
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
@@ -69,6 +88,10 @@ func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.Remove
 	fmt.Println("RemoveProductsRequest called")
 	fmt.Println(req.GetSupplierId())
 	supplierId := req.GetSupplierId()
+	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.supplierApi: cannot publish event")
+	}
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
 		return nil, fmt.Errorf("supplierApi not found")
@@ -87,6 +110,10 @@ func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.Remove
 func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderProductRequest) (*supplierApi.OrderProductReply, error) {
 	fmt.Println("OrderProduct called")
 	fmt.Println(req.GetSupplierId())
+	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.supplierApi: cannot publish event")
+	}
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
@@ -112,6 +139,7 @@ func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderPro
 func main() {
 	flagHost := flag.String("host", "127.0.0.1", "address of supplierApi service")
 	flagPort := flag.String("port", "50056", "port of supplierApi service")
+	flagNATS := flag.String("nats", "127.0.0.1:4222", "address and port of NATS server")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
@@ -122,9 +150,6 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-
-	supplierApi.RegisterSupplierServiceServer(s, &server{supplier: make(map[uint32]*supplierApi.Supplier)})
-	fmt.Println("creating supplierApi service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -138,6 +163,15 @@ func main() {
 			time.Sleep(10 * time.Second)
 		}
 	}()
+
+	nc, err := nats.Connect(*flagNATS)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer nc.Close()
+
+	supplierApi.RegisterSupplierServiceServer(s, &server{nats: nc, supplier: make(map[uint32]*supplierApi.Supplier)})
+	fmt.Println("creating supplierApi service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
@@ -12,6 +13,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
+	"reflect"
 	"time"
 )
 
@@ -19,10 +21,17 @@ import (
 type server struct {
 	shipmentApi.ShipmentServiceServer
 	redis      *redis.Client
+	nats       *nats.Conn
 	sentOrders []uint32
 }
 
 func (state *server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
+	fmt.Println("ShipmentOrder called")
+	fmt.Println(req.GetOrderId())
+	err := state.nats.Publish("log.shipmentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("shipmentApi: cannot publish event")
+	}
 	address := state.getCustomerAddress(ctx, req)
 
 	orderId := state.getCustomersOrder(ctx, req)
@@ -90,6 +99,7 @@ func main() {
 	flagHost := flag.String("host", "127.0.0.1", "address of shipmentApi service")
 	flagPort := flag.String("port", "50054", "port of shipmentApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
+	flagNATS := flag.String("nats", "127.0.0.1:4222", "address and port of NATS server")
 	flag.Parse()
 
 	address := fmt.Sprintf("%s:%s", *flagHost, *flagPort)
@@ -113,7 +123,13 @@ func main() {
 		}
 	}()
 
-	shipmentApi.RegisterShipmentServiceServer(s, &server{redis: rdb})
+	nc, err := nats.Connect(*flagNATS)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer nc.Close()
+
+	shipmentApi.RegisterShipmentServiceServer(s, &server{redis: rdb, nats: nc, sentOrders: []uint32{}})
 	fmt.Println("creating shipmentApi service finished")
 
 	if err := s.Serve(lis); err != nil {

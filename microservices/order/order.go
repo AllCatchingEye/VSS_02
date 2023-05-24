@@ -4,23 +4,30 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
-	orderApi "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
 	"net"
+	"reflect"
 	"time"
 )
 
 type server struct {
 	orderApi.OrderServiceServer
+	nats   *nats.Conn
 	orders map[uint32]*orderApi.Order
 }
 
 func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest) (*orderApi.NewOrderReply, error) {
 	fmt.Println("NewOrder called")
 	fmt.Println(req)
+	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.orderApi: cannot publish event")
+	}
 	//TODO: check if customerApi exists (call customerApi service)
 	order := &orderApi.Order{
 		Customer:       req.GetCustomerId(),
@@ -37,6 +44,10 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest) (*orderApi.GetOrderReply, error) {
 	fmt.Println("GetOrder called")
 	fmt.Println(req)
+	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.orderApi: cannot publish event")
+	}
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
@@ -48,6 +59,10 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 func (state *server) SetOrderStatus(ctx context.Context, req *orderApi.SetOrderStatusRequest) (*orderApi.SetOrderStatusReply, error) {
 	fmt.Println("SetOrderStatus called")
 	fmt.Println(req)
+	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.orderApi: cannot publish event")
+	}
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
@@ -60,6 +75,10 @@ func (state *server) SetOrderStatus(ctx context.Context, req *orderApi.SetOrderS
 func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaymentStatusRequest) (*orderApi.SetPaymentStatusReply, error) {
 	fmt.Println("SetPaymentStatus called")
 	fmt.Println(req)
+	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.orderApi: cannot publish event")
+	}
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
@@ -72,6 +91,10 @@ func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaym
 func (state *server) SetDeliveryStatus(ctx context.Context, req *orderApi.SetDeliveryStatusRequest) (*orderApi.SetDeliveryStatusReply, error) {
 	fmt.Println("SetDeliveryStatus called")
 	fmt.Println(req)
+	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.orderApi: cannot publish event")
+	}
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
@@ -81,12 +104,11 @@ func (state *server) SetDeliveryStatus(ctx context.Context, req *orderApi.SetDel
 	return &orderApi.SetDeliveryStatusReply{DeliveryStatus: order.GetDeliveryStatus()}, nil
 }
 
-//TODO: implement interface for stockApi service
-
 func main() {
 	flagHost := flag.String("host", "127.0.0.1", "address of orderApi service")
 	flagPort := flag.String("port", "50052", "port of orderApi service")
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
+	flagNATS := flag.String("nats", "127.0.0.1:4222", "address and port of NATS server")
 	flag.Parse()
 
 	address := fmt.Sprintf("%s:%s", *flagHost, *flagPort)
@@ -96,9 +118,6 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	s := grpc.NewServer()
-
-	orderApi.RegisterOrderServiceServer(s, &server{orders: make(map[uint32]*orderApi.Order)})
-	fmt.Println("creating orderApi service finished")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
@@ -112,6 +131,15 @@ func main() {
 			time.Sleep(10 * time.Second)
 		}
 	}()
+
+	nc, err := nats.Connect(*flagNATS)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer nc.Close()
+
+	orderApi.RegisterOrderServiceServer(s, &server{nats: nc, orders: make(map[uint32]*orderApi.Order)})
+	fmt.Println("creating orderApi service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

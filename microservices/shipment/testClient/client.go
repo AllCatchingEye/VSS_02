@@ -42,6 +42,7 @@ func main() {
 	defer cancel()
 
 	// Ship Order
+	//TODO: Hier müssen noch die Funktionen getestet werden
 	log.Printf("shipment client: %v\n", c)
 	log.Printf("context: %v\n", ctx)
 	log.Println("Done")
