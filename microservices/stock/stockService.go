@@ -24,6 +24,10 @@ type server struct {
 
 func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsRequest) (*stockApi.AddProductsReply, error) {
 	fmt.Println("AddProduct called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetProducts())
 	err := state.nats.Publish("log.stockApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -41,6 +45,10 @@ func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsR
 
 func (state *server) GetProducts(ctx context.Context, req *stockApi.GetProductsRequest) (*stockApi.GetProductsReply, error) {
 	fmt.Println("GetProduct called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetProductIds())
 	err := state.nats.Publish("log.stockApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -60,6 +68,10 @@ func (state *server) GetProducts(ctx context.Context, req *stockApi.GetProductsR
 
 func (state *server) RemoveProduct(ctx context.Context, req *stockApi.RemoveProductRequest) (*stockApi.RemoveProductReply, error) {
 	fmt.Println("RemoveProduct called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetProductId())
 	err := state.nats.Publish("log.stockApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {

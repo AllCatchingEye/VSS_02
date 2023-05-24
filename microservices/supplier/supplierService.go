@@ -24,6 +24,10 @@ type server struct {
 
 func (state *server) AddSupplier(ctx context.Context, req *supplierApi.AddSupplierRequest) (*supplierApi.AddSupplierReply, error) {
 	fmt.Println("AddSupplier called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetSupplier())
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -37,6 +41,10 @@ func (state *server) AddSupplier(ctx context.Context, req *supplierApi.AddSuppli
 
 func (state *server) GetSupplier(ctx context.Context, req *supplierApi.GetSupplierRequest) (*supplierApi.GetSupplierReply, error) {
 	fmt.Println("GetSupplier called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetSupplierId())
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -52,6 +60,10 @@ func (state *server) GetSupplier(ctx context.Context, req *supplierApi.GetSuppli
 
 func (state *server) RemoveSupplier(ctx context.Context, req *supplierApi.RemoveSupplierRequest) (*supplierApi.RemoveSupplierReply, error) {
 	fmt.Println("RemoveSupplier called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetSupplierId())
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -68,6 +80,10 @@ func (state *server) RemoveSupplier(ctx context.Context, req *supplierApi.Remove
 
 func (state *server) AddProducts(ctx context.Context, req *supplierApi.AddProductsRequest) (*supplierApi.AddProductsReply, error) {
 	fmt.Println("AddProductsRequest called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetSupplierId())
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -87,6 +103,10 @@ func (state *server) AddProducts(ctx context.Context, req *supplierApi.AddProduc
 
 func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.RemoveProductsRequest) (*supplierApi.RemoveProductsReply, error) {
 	fmt.Println("RemoveProductsRequest called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetSupplierId())
 	supplierId := req.GetSupplierId()
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
@@ -110,6 +130,10 @@ func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.Remove
 
 func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderProductRequest) (*supplierApi.OrderProductReply, error) {
 	fmt.Println("OrderProduct called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetSupplierId())
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {

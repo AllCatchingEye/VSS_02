@@ -24,6 +24,10 @@ type server struct {
 
 func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest) (*orderApi.NewOrderReply, error) {
 	fmt.Println("NewOrder called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req)
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -44,6 +48,10 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 
 func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest) (*orderApi.GetOrderReply, error) {
 	fmt.Println("GetOrder called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req)
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -59,6 +67,10 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 
 func (state *server) SetOrderStatus(ctx context.Context, req *orderApi.SetOrderStatusRequest) (*orderApi.SetOrderStatusReply, error) {
 	fmt.Println("SetOrderStatus called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req)
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -75,6 +87,10 @@ func (state *server) SetOrderStatus(ctx context.Context, req *orderApi.SetOrderS
 
 func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaymentStatusRequest) (*orderApi.SetPaymentStatusReply, error) {
 	fmt.Println("SetPaymentStatus called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req)
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -91,6 +107,10 @@ func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaym
 
 func (state *server) SetDeliveryStatus(ctx context.Context, req *orderApi.SetDeliveryStatusRequest) (*orderApi.SetDeliveryStatusReply, error) {
 	fmt.Println("SetDeliveryStatus called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req)
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {

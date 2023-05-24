@@ -24,6 +24,10 @@ type server struct {
 
 func (state *server) AddCustomer(ctx context.Context, req *customerApi.AddCustomerRequest) (*customerApi.AddCustomerReply, error) {
 	fmt.Println("AddCustomer called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetCustomer())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -38,6 +42,10 @@ func (state *server) AddCustomer(ctx context.Context, req *customerApi.AddCustom
 
 func (state *server) GetCustomer(ctx context.Context, req *customerApi.GetCustomerRequest) (*customerApi.GetCustomerReply, error) {
 	fmt.Println("GetCustomer called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetCustomerId())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -54,6 +62,10 @@ func (state *server) GetCustomer(ctx context.Context, req *customerApi.GetCustom
 
 func (state *server) RemoveCustomer(ctx context.Context, req *customerApi.RemoveCustomerRequest) (*customerApi.RemoveCustomerReply, error) {
 	fmt.Println("RemoveCustomer called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetCustomerId())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {

@@ -25,6 +25,10 @@ func (state *server) PayMyOrder(ctx context.Context, req *paymentApi.PayMyOrderR
 	//TODO: check customerId (call CustomerService)
 	//TODO: check orderId (call OrderService)
 	fmt.Println("PayMyOrder called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetOrderId())
 	err := state.nats.Publish("log.paymentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
@@ -36,6 +40,10 @@ func (state *server) PayMyOrder(ctx context.Context, req *paymentApi.PayMyOrderR
 
 func (state *server) IsOrderPayed(ctx context.Context, req *paymentApi.IsOrderPayedRequest) (*paymentApi.IsOrderPayedReply, error) {
 	fmt.Println("IsOrderPayed called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
 	fmt.Println(req.GetOrderId())
 	err := state.nats.Publish("log.paymentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
