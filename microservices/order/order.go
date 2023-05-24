@@ -17,6 +17,7 @@ import (
 
 type server struct {
 	orderApi.OrderServiceServer
+	redis  *redis.Client
 	nats   *nats.Conn
 	orders map[uint32]*orderApi.Order
 }
@@ -138,7 +139,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	orderApi.RegisterOrderServiceServer(s, &server{nats: nc, orders: make(map[uint32]*orderApi.Order)})
+	orderApi.RegisterOrderServiceServer(s, &server{redis: rdb, nats: nc, orders: make(map[uint32]*orderApi.Order)})
 	fmt.Println("creating orderApi service finished")
 
 	if err := s.Serve(lis); err != nil {

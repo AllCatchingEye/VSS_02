@@ -17,6 +17,7 @@ import (
 
 type server struct {
 	customerApi.CustomerServiceServer
+	redis     *redis.Client
 	nats      *nats.Conn
 	customers map[uint32]*customerApi.Customer
 }
@@ -102,10 +103,8 @@ func main() {
 	}
 	defer nc.Close()
 
-	customerApi.RegisterCustomerServiceServer(s, &server{nats: nc, customers: make(map[uint32]*customerApi.Customer)})
+	customerApi.RegisterCustomerServiceServer(s, &server{redis: rdb, nats: nc, customers: make(map[uint32]*customerApi.Customer)})
 	fmt.Println("creating customerApi service finished")
-
-	//api.RegisterGreeterServer(s, &server{nats: nc})
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)

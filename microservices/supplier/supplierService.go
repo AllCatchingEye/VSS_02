@@ -17,6 +17,7 @@ import (
 
 type server struct {
 	supplierApi.SupplierServiceServer
+	redis    *redis.Client
 	nats     *nats.Conn
 	supplier map[uint32]*supplierApi.Supplier
 }
@@ -170,7 +171,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	supplierApi.RegisterSupplierServiceServer(s, &server{nats: nc, supplier: make(map[uint32]*supplierApi.Supplier)})
+	supplierApi.RegisterSupplierServiceServer(s, &server{redis: rdb, nats: nc, supplier: make(map[uint32]*supplierApi.Supplier)})
 	fmt.Println("creating supplierApi service finished")
 
 	if err := s.Serve(lis); err != nil {

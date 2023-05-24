@@ -17,6 +17,7 @@ import (
 
 type server struct {
 	stockApi.StockServiceServer
+	redis    *redis.Client
 	nats     *nats.Conn
 	products map[uint32]*stockApi.Product
 }
@@ -107,7 +108,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	stockApi.RegisterStockServiceServer(s, &server{nats: nc, products: make(map[uint32]*stockApi.Product)})
+	stockApi.RegisterStockServiceServer(s, &server{redis: rdb, nats: nc, products: make(map[uint32]*stockApi.Product)})
 	fmt.Println("creating stockApi service finished")
 
 	if err := s.Serve(lis); err != nil {

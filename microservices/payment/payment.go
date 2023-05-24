@@ -16,6 +16,7 @@ import (
 
 type server struct {
 	paymentApi.PaymentServiceServer
+	redis       *redis.Client
 	nats        *nats.Conn
 	payedOrders []uint32
 }
@@ -84,7 +85,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	paymentApi.RegisterPaymentServiceServer(s, &server{nats: nc, payedOrders: []uint32{}})
+	paymentApi.RegisterPaymentServiceServer(s, &server{redis: rdb, nats: nc, payedOrders: []uint32{}})
 	fmt.Println("creating paymentApi service finished")
 
 	if err := s.Serve(lis); err != nil {
