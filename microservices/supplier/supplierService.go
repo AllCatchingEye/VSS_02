@@ -94,10 +94,7 @@ func (state *server) AddProducts(ctx context.Context, req *supplierApi.AddProduc
 	if !ok {
 		return nil, fmt.Errorf("supplierApi not found")
 	}
-	for _, productToAdd := range req.GetProducts() {
-		supplier.Products = append(supplier.Products, productToAdd)
-	}
-	//supplierApi.Products = append(supplierApi.Products, req.GetProducts()...)
+	supplier.Products = append(supplier.Products, req.GetProducts()...)
 	return &supplierApi.AddProductsReply{Supplier: supplier}, nil
 }
 
