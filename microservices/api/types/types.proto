@@ -1,0 +1,48 @@
+syntax = "proto3";
+package types;
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types";
+
+message Address {
+    string street = 1;
+    string zip = 3;
+    string city = 4;
+    string country = 5;
+}
+
+message Customer {
+    string name = 1;
+    Address address = 2;
+}
+
+message Order {
+    uint32 customer = 1;
+    map<uint32, uint32> products = 2;
+    bool orderStatus = 3;
+    bool paymentStatus = 4;
+    types.DELIVERY_STATUS deliveryStatus = 5;
+}
+
+message Product {
+    string name = 1;
+    string description = 2;
+    double price = 3;
+    uint32 supplier = 4;
+}
+
+message Supplier {
+    string name = 1;
+    Address address = 2;
+    repeated uint32 products = 3;
+}
+
+message Deliverer {
+    uint32 delivererId = 1;
+    string name = 2;
+    types.Address address = 3;
+}
+
+enum DELIVERY_STATUS{
+    NOT_SENT = 0;
+    UNDER_WAY = 1;
+    DELIVERED = 2;
+}

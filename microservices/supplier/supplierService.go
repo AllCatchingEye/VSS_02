@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -16,10 +18,10 @@ import (
 )
 
 type server struct {
-	supplierApi.SupplierServiceServer
+	services.SupplierServiceServer
 	redis    *redis.Client
 	nats     *nats.Conn
-	supplier map[uint32]*supplierApi.Supplier
+	supplier map[uint32]*types.Supplier
 }
 
 func (state *server) AddSupplier(ctx context.Context, req *supplierApi.AddSupplierRequest) (*supplierApi.AddSupplierReply, error) {
@@ -192,7 +194,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	supplierApi.RegisterSupplierServiceServer(s, &server{redis: rdb, nats: nc, supplier: make(map[uint32]*supplierApi.Supplier)})
+	services.RegisterSupplierServiceServer(s, &server{redis: rdb, nats: nc, supplier: make(map[uint32]*types.Supplier)})
 	fmt.Println("creating supplierApi service finished")
 
 	if err := s.Serve(lis); err != nil {
@@ -201,7 +203,7 @@ func main() {
 }
 
 // Helper
-func generateUniqueSupplierID(supplier map[uint32]*supplierApi.Supplier) uint32 {
+func generateUniqueSupplierID(supplier map[uint32]*types.Supplier) uint32 {
 	supplierId := uint32(rand.Intn(1000))
 	if len(supplier) == 0 {
 		return supplierId

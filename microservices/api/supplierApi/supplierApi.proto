@@ -1,31 +1,11 @@
 syntax = "proto3";
 package supplierApi;
-option go_package = ".;supplierApi";
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi";
 
-service SupplierService {
-    rpc AddSupplier (AddSupplierRequest) returns (AddSupplierReply){}
-    rpc GetSupplier (GetSupplierRequest) returns (GetSupplierReply){}
-    rpc RemoveSupplier (RemoveSupplierRequest) returns (RemoveSupplierReply){}
-    rpc AddProducts (AddProductsRequest) returns (AddProductsReply){}
-    rpc RemoveProducts (RemoveProductsRequest) returns (RemoveProductsReply){}
-    rpc OrderProduct (OrderProductRequest) returns (OrderProductReply){}
-}
-
-message Address {
-    string street = 1;
-    string zip = 3;
-    string city = 4;
-    string country = 5;
-}
-
-message Supplier {
-    string name = 1;
-    Address address = 2;
-    repeated uint32 products = 3;
-}
+import "microservices/api/types/types.proto";
 
 message AddSupplierRequest {
-    Supplier supplier = 1;
+    types.Supplier supplier = 1;
 }
 
 message AddSupplierReply {
@@ -37,7 +17,7 @@ message GetSupplierRequest {
 }
 
 message GetSupplierReply {
-    Supplier supplier = 1;
+    types.Supplier supplier = 1;
 }
 
 message RemoveSupplierRequest {
@@ -45,7 +25,7 @@ message RemoveSupplierRequest {
 }
 
 message RemoveSupplierReply {
-    Supplier supplier = 1;
+    types.Supplier supplier = 1;
 }
 
 message AddProductsRequest {
@@ -54,7 +34,7 @@ message AddProductsRequest {
 }
 
 message AddProductsReply {
-    Supplier supplier = 1;
+    types.Supplier supplier = 1;
 }
 
 message RemoveProductsRequest {
@@ -63,7 +43,7 @@ message RemoveProductsRequest {
 }
 
 message RemoveProductsReply {
-    Supplier supplier = 1;
+    types.Supplier supplier = 1;
 }
 
 message OrderProductRequest {

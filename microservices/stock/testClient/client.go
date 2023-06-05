@@ -5,7 +5,9 @@ import (
 	"flag"
 	"fmt"
 	"github.com/redis/go-redis/v9"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -37,30 +39,30 @@ func main() {
 		}
 	}(conn)
 
-	c := stockApi.NewStockServiceClient(conn)
+	c := services.NewStockServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	// Adding Products
-	product1 := &stockApi.Product{
+	product1 := &types.Product{
 		Name:        "Apple",
 		Description: "A red and sweet apple",
 		Price:       1.99,
 		Supplier:    1,
 	}
-	product2 := &stockApi.Product{
+	product2 := &types.Product{
 		Name:        "Banana",
 		Description: "A yellow and sweet banana",
 		Price:       0.99,
 		Supplier:    1,
 	}
-	product3 := &stockApi.Product{
+	product3 := &types.Product{
 		Name:        "Spoon",
 		Description: "A silver spoon",
 		Price:       5.99,
 		Supplier:    2,
 	}
-	products := []*stockApi.Product{product1, product2, product3}
+	products := []*types.Product{product1, product2, product3}
 	r, err := c.AddProducts(ctx, &stockApi.AddProductsRequest{Products: products})
 	if err != nil {
 		log.Fatalf("could not get: %v", err)

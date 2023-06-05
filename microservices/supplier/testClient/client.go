@@ -4,7 +4,9 @@ import (
 	"context"
 	"flag"
 	"github.com/redis/go-redis/v9"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -36,14 +38,14 @@ func main() {
 		}
 	}(conn)
 
-	c := supplierApi.NewSupplierServiceClient(conn)
+	c := services.NewSupplierServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*25)
 	defer cancel()
 	// Adding Supplier
-	supplier := &supplierApi.Supplier{
+	supplier := &types.Supplier{
 		Name: "Obstlieferant",
-		Address: &supplierApi.Address{
+		Address: &types.Address{
 			Street:  "Obststraße",
 			Zip:     "12345",
 			City:    "Obsthausen",

@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"github.com/redis/go-redis/v9"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -36,7 +36,7 @@ func main() {
 		}
 	}(conn)
 
-	c := shipmentApi.NewShipmentServiceClient(conn)
+	c := services.NewShipmentServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()

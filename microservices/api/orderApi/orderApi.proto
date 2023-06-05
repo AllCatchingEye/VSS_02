@@ -1,40 +1,8 @@
 syntax = "proto3";
 package orderApi;
-option go_package = ".;orderApi";
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi";
 
-service OrderService {
-    rpc NewOrder (NewOrderRequest) returns (NewOrderReply){}
-    rpc GetOrder (GetOrderRequest) returns (GetOrderReply){}
-    rpc SetOrderStatus (SetOrderStatusRequest) returns (SetOrderStatusReply){}
-    rpc SetPaymentStatus (SetPaymentStatusRequest) returns (SetPaymentStatusReply){}
-    rpc SetDeliveryStatus (SetDeliveryStatusRequest) returns (SetDeliveryStatusReply){}
-}
-
-enum DELIVERY_STATUS{
-    NOT_SENT = 0;
-    UNDER_WAY = 1;
-    DELIVERED = 2;
-}
-
-message Customer {
-    string name = 1;
-    Address address = 2;
-}
-
-message Address {
-    string street = 1;
-    string zip = 3;
-    string city = 4;
-    string country = 5;
-}
-
-message Order {
-    uint32 customer = 1;
-    map<uint32, uint32> products = 2;
-    bool orderStatus = 3;
-    bool paymentStatus = 4;
-    DELIVERY_STATUS deliveryStatus = 5;
-}
+import "microservices/api/types/types.proto";
 
 message NewOrderRequest {
     uint32 customerId = 1;
@@ -43,7 +11,7 @@ message NewOrderRequest {
 
 message NewOrderReply {
     uint32 orderId = 1;
-    Order order = 2;
+    types.Order order = 2;
 }
 
 message GetOrderRequest {
@@ -53,7 +21,7 @@ message GetOrderRequest {
 
 message GetOrderReply {
     uint32 orderId = 1;
-    Order order = 2;
+    types.Order order = 2;
 }
 
 message SetOrderStatusRequest {
@@ -76,9 +44,9 @@ message SetPaymentStatusReply {
 
 message SetDeliveryStatusRequest {
     uint32 orderId = 1;
-    DELIVERY_STATUS status = 2;
+    types.DELIVERY_STATUS status = 2;
 }
 
 message SetDeliveryStatusReply {
-    DELIVERY_STATUS deliveryStatus = 1;
+    types.DELIVERY_STATUS deliveryStatus = 1;
 }

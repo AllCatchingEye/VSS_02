@@ -7,6 +7,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -41,7 +43,7 @@ func main() {
 		}
 	}(customerConn)
 
-	customerClient := customerApi.NewCustomerServiceClient(customerConn)
+	customerClient := services.NewCustomerServiceClient(customerConn)
 
 	// set context
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -71,9 +73,9 @@ func main() {
 	wc.Add(1)
 
 	// Adding Customer
-	customer := &customerApi.Customer{
+	customer := &types.Customer{
 		Name: "Max Mustermann",
-		Address: &customerApi.Address{
+		Address: &types.Address{
 			Street:  "Mustermannstraße 42",
 			Zip:     "80335",
 			City:    "Munich",

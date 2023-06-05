@@ -1,22 +1,11 @@
 syntax = "proto3";
 package stockApi;
-option go_package = ".;stockApi";
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi";
 
-service StockService {
-    rpc AddProducts (AddProductsRequest) returns (AddProductsReply){}
-    rpc GetProducts (GetProductsRequest) returns (GetProductsReply){}
-    rpc RemoveProduct (RemoveProductRequest) returns (RemoveProductReply){}
-}
-
-message Product {
-    string name = 1;
-    string description = 2;
-    double price = 3;
-    uint32 supplier = 4;
-}
+import "microservices/api/types/types.proto";
 
 message AddProductsRequest {
-    repeated Product products = 1;
+    repeated types.Product products = 1;
 }
 
 message AddProductsReply {
@@ -28,7 +17,7 @@ message GetProductsRequest {
 }
 
 message GetProductsReply {
-    repeated Product products = 1;
+    repeated types.Product products = 1;
 }
 
 message RemoveProductRequest {
@@ -36,6 +25,6 @@ message RemoveProductRequest {
 }
 
 message RemoveProductReply {
-    Product product = 1;
+    types.Product product = 1;
 }
 

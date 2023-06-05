@@ -1,11 +1,6 @@
 syntax = "proto3";
 package paymentApi;
-option go_package = ".;paymentApi";
-
-service PaymentService {
-    rpc PayMyOrder (PayMyOrderRequest) returns (PayMyOrderReply){}
-    rpc IsOrderPayed (IsOrderPayedRequest) returns (IsOrderPayedReply){}
-}
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi";
 
 message PayMyOrderRequest {
     uint32 customerId = 1;

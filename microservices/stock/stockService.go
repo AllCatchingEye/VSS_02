@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -16,10 +18,10 @@ import (
 )
 
 type server struct {
-	stockApi.StockServiceServer
+	services.StockServiceServer
 	redis    *redis.Client
 	nats     *nats.Conn
-	products map[uint32]*stockApi.Product
+	products map[uint32]*types.Product
 }
 
 func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsRequest) (*stockApi.AddProductsReply, error) {
@@ -55,7 +57,7 @@ func (state *server) GetProducts(ctx context.Context, req *stockApi.GetProductsR
 		log.Print("log.stockApi: cannot publish event")
 	}
 	productIDs := req.GetProductIds()
-	var products []*stockApi.Product
+	var products []*types.Product
 	for _, productID := range productIDs {
 		product, ok := state.products[productID]
 		if !ok {
@@ -120,7 +122,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	stockApi.RegisterStockServiceServer(s, &server{redis: rdb, nats: nc, products: make(map[uint32]*stockApi.Product)})
+	services.RegisterStockServiceServer(s, &server{redis: rdb, nats: nc, products: make(map[uint32]*types.Product)})
 	fmt.Println("creating stockApi service finished")
 
 	if err := s.Serve(lis); err != nil {
@@ -129,7 +131,7 @@ func main() {
 }
 
 // Helper
-func generateUniqueProductID(products map[uint32]*stockApi.Product) uint32 {
+func generateUniqueProductID(products map[uint32]*types.Product) uint32 {
 	productId := uint32(rand.Intn(1000))
 	if len(products) == 0 {
 		return productId

@@ -7,6 +7,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -16,10 +18,10 @@ import (
 )
 
 type server struct {
-	orderApi.OrderServiceServer
+	services.OrderServiceServer
 	redis  *redis.Client
 	nats   *nats.Conn
-	orders map[uint32]*orderApi.Order
+	orders map[uint32]*types.Order
 }
 
 func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest) (*orderApi.NewOrderReply, error) {
@@ -34,12 +36,12 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 		log.Print("log.orderApi: cannot publish event")
 	}
 	//TODO: check if customerApi exists (call customerApi service)
-	order := &orderApi.Order{
+	order := &types.Order{
 		Customer:       req.GetCustomerId(),
 		Products:       req.GetProducts(),
 		OrderStatus:    false,
 		PaymentStatus:  false,
-		DeliveryStatus: orderApi.DELIVERY_STATUS(0),
+		DeliveryStatus: types.DELIVERY_STATUS(0),
 	}
 	orderId := generateUniqueOrderID(state.orders)
 	state.orders[orderId] = order
@@ -159,7 +161,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	orderApi.RegisterOrderServiceServer(s, &server{redis: rdb, nats: nc, orders: make(map[uint32]*orderApi.Order)})
+	services.RegisterOrderServiceServer(s, &server{redis: rdb, nats: nc, orders: make(map[uint32]*types.Order)})
 	fmt.Println("creating orderApi service finished")
 
 	if err := s.Serve(lis); err != nil {
@@ -168,7 +170,7 @@ func main() {
 }
 
 // Helper
-func generateUniqueOrderID(orders map[uint32]*orderApi.Order) uint32 {
+func generateUniqueOrderID(orders map[uint32]*types.Order) uint32 {
 	orderId := uint32(rand.Intn(1000))
 	if len(orders) == 0 {
 		return orderId

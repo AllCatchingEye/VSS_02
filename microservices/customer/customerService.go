@@ -7,6 +7,8 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"log"
 	"math/rand"
@@ -16,10 +18,10 @@ import (
 )
 
 type server struct {
-	customerApi.CustomerServiceServer
+	services.CustomerServiceServer
 	redis     *redis.Client
 	nats      *nats.Conn
-	customers map[uint32]*customerApi.Customer
+	customers map[uint32]*types.Customer
 }
 
 func (state *server) AddCustomer(ctx context.Context, req *customerApi.AddCustomerRequest) (*customerApi.AddCustomerReply, error) {
@@ -115,7 +117,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	customerApi.RegisterCustomerServiceServer(s, &server{redis: rdb, nats: nc, customers: make(map[uint32]*customerApi.Customer)})
+	services.RegisterCustomerServiceServer(s, &server{redis: rdb, nats: nc, customers: make(map[uint32]*types.Customer)})
 	fmt.Println("creating customerApi service finished")
 
 	if err := s.Serve(lis); err != nil {
@@ -124,7 +126,7 @@ func main() {
 }
 
 // Helper
-func generateUniqueCustomerID(customers map[uint32]*customerApi.Customer) uint32 {
+func generateUniqueCustomerID(customers map[uint32]*types.Customer) uint32 {
 	customerID := uint32(rand.Intn(1000))
 	if len(customers) == 0 {
 		return customerID

@@ -1,27 +1,11 @@
 syntax = "proto3";
 package customerApi;
-option go_package = ".;customerApi";
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi";
 
-service CustomerService {
-    rpc AddCustomer (AddCustomerRequest) returns (AddCustomerReply){}
-    rpc GetCustomer (GetCustomerRequest) returns (GetCustomerReply){}
-    rpc RemoveCustomer (RemoveCustomerRequest) returns (RemoveCustomerReply){}
-}
-
-message Customer {
-    string name = 1;
-    Address address = 2;
-}
-
-message Address {
-    string street = 1;
-    string zip = 3;
-    string city = 4;
-    string country = 5;
-}
+import "microservices/api/types/types.proto";
 
 message AddCustomerRequest {
-    Customer customer = 1;
+    types.Customer customer = 1;
 }
 
 message AddCustomerReply {
@@ -33,7 +17,7 @@ message GetCustomerRequest {
 }
 
 message GetCustomerReply {
-    Customer customer = 1;
+    types.Customer customer = 1;
 }
 
 message RemoveCustomerRequest {
@@ -41,5 +25,5 @@ message RemoveCustomerRequest {
 }
 
 message RemoveCustomerReply {
-    Customer customer = 1;
+    types.Customer customer = 1;
 }

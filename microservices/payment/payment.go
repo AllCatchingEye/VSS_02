@@ -7,6 +7,7 @@ import (
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"google.golang.org/grpc"
 	"log"
 	"net"
@@ -15,7 +16,7 @@ import (
 )
 
 type server struct {
-	paymentApi.PaymentServiceServer
+	services.PaymentServiceServer
 	redis       *redis.Client
 	nats        *nats.Conn
 	payedOrders []uint32
@@ -93,7 +94,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	paymentApi.RegisterPaymentServiceServer(s, &server{redis: rdb, nats: nc, payedOrders: []uint32{}})
+	services.RegisterPaymentServiceServer(s, &server{redis: rdb, nats: nc, payedOrders: []uint32{}})
 	fmt.Println("creating paymentApi service finished")
 
 	if err := s.Serve(lis); err != nil {

@@ -1,0 +1,48 @@
+syntax = "proto3";
+package services;
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services";
+
+import "microservices/api/customerApi/customerApi.proto";
+import "microservices/api/orderApi/orderApi.proto";
+import "microservices/api/paymentApi/paymentApi.proto";
+import "microservices/api/shipmentApi/shipmentApi.proto";
+import "microservices/api/stockApi/stockApi.proto";
+import "microservices/api/supplierApi/supplierApi.proto";
+
+service CustomerService {
+    rpc AddCustomer (customerApi.AddCustomerRequest) returns (customerApi.AddCustomerReply){}
+    rpc GetCustomer (customerApi.GetCustomerRequest) returns (customerApi.GetCustomerReply){}
+    rpc RemoveCustomer (customerApi.RemoveCustomerRequest) returns (customerApi.RemoveCustomerReply){}
+}
+
+service OrderService {
+    rpc NewOrder (orderApi.NewOrderRequest) returns (orderApi.NewOrderReply){}
+    rpc GetOrder (orderApi.GetOrderRequest) returns (orderApi.GetOrderReply){}
+    rpc SetOrderStatus (orderApi.SetOrderStatusRequest) returns (orderApi.SetOrderStatusReply){}
+    rpc SetPaymentStatus (orderApi.SetPaymentStatusRequest) returns (orderApi.SetPaymentStatusReply){}
+    rpc SetDeliveryStatus (orderApi.SetDeliveryStatusRequest) returns (orderApi.SetDeliveryStatusReply){}
+}
+
+service PaymentService {
+    rpc PayMyOrder (paymentApi.PayMyOrderRequest) returns (paymentApi.PayMyOrderReply){}
+    rpc IsOrderPayed (paymentApi.IsOrderPayedRequest) returns (paymentApi.IsOrderPayedReply){}
+}
+
+service ShipmentService {
+    rpc ShipmentOrder (shipmentApi.ShipMyOrderRequest) returns (shipmentApi.ShipMyOrderReply){}
+}
+
+service StockService {
+    rpc AddProducts (stockApi.AddProductsRequest) returns (stockApi.AddProductsReply){}
+    rpc GetProducts (stockApi.GetProductsRequest) returns (stockApi.GetProductsReply){}
+    rpc RemoveProduct (stockApi.RemoveProductRequest) returns (stockApi.RemoveProductReply){}
+}
+
+service SupplierService {
+    rpc AddSupplier (supplierApi.AddSupplierRequest) returns (supplierApi.AddSupplierReply){}
+    rpc GetSupplier (supplierApi.GetSupplierRequest) returns (supplierApi.GetSupplierReply){}
+    rpc RemoveSupplier (supplierApi.RemoveSupplierRequest) returns (supplierApi.RemoveSupplierReply){}
+    rpc AddProducts (supplierApi.AddProductsRequest) returns (supplierApi.AddProductsReply){}
+    rpc RemoveProducts (supplierApi.RemoveProductsRequest) returns (supplierApi.RemoveProductsReply){}
+    rpc OrderProduct (supplierApi.OrderProductRequest) returns (supplierApi.OrderProductReply){}
+}

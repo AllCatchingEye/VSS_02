@@ -8,7 +8,9 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -19,7 +21,7 @@ import (
 
 // TODO: Ist es erlaubt hier die anderen Typen zu importieren?
 type server struct {
-	shipmentApi.ShipmentServiceServer
+	services.ShipmentServiceServer
 	redis      *redis.Client
 	nats       *nats.Conn
 	sentOrders []uint32
@@ -41,7 +43,7 @@ func (state *server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyO
 	return &shipmentApi.ShipMyOrderReply{OrderId: orderId, Address: ConvertToShipmentAddress(address)}, nil
 }
 
-func (state *server) getCustomerAddress(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) *customerApi.Address {
+func (state *server) getCustomerAddress(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) *types.Address {
 	address, err := state.redis.Get(context.TODO(), "service:customerApi").Result()
 	if err != nil {
 		log.Fatalf("error while trying to get the result %v", err)
@@ -58,7 +60,7 @@ func (state *server) getCustomerAddress(ctx context.Context, req *shipmentApi.Sh
 		}
 	}(conn)
 
-	c := customerApi.NewCustomerServiceClient(conn)
+	c := services.NewCustomerServiceClient(conn)
 
 	res, err := c.GetCustomer(ctx, &customerApi.GetCustomerRequest{CustomerId: req.CustomerId})
 	if err != nil {
@@ -85,7 +87,7 @@ func (state *server) getCustomersOrder(ctx context.Context, req *shipmentApi.Shi
 		}
 	}(conn)
 
-	c := orderApi.NewOrderServiceClient(conn)
+	c := services.NewOrderServiceClient(conn)
 
 	res, err := c.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: req.CustomerId, OrderId: req.OrderId})
 	if err != nil {
@@ -129,7 +131,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	shipmentApi.RegisterShipmentServiceServer(s, &server{redis: rdb, nats: nc, sentOrders: []uint32{}})
+	services.RegisterShipmentServiceServer(s, &server{redis: rdb, nats: nc, sentOrders: []uint32{}})
 	fmt.Println("creating shipmentApi service finished")
 
 	if err := s.Serve(lis); err != nil {
@@ -138,8 +140,8 @@ func main() {
 }
 
 // ConvertToShipmentAddress Helper
-func ConvertToShipmentAddress(address *customerApi.Address) *shipmentApi.Address {
-	return &shipmentApi.Address{
+func ConvertToShipmentAddress(address *types.Address) *types.Address {
+	return &types.Address{
 		Street:  address.GetStreet(),
 		Zip:     address.GetZip(),
 		City:    address.GetCity(),

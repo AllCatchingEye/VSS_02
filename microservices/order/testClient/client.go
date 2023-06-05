@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -37,7 +39,7 @@ func main() {
 		}
 	}(conn)
 
-	c := orderApi.NewOrderServiceClient(conn)
+	c := services.NewOrderServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -68,7 +70,7 @@ func main() {
 	log.Printf("paymentApi status set to: %#v", r3.GetPaymentStatus())
 
 	// Set Delivery Status
-	r4, err := c.SetDeliveryStatus(ctx, &orderApi.SetDeliveryStatusRequest{OrderId: r.GetOrderId(), Status: orderApi.DELIVERY_STATUS(1)})
+	r4, err := c.SetDeliveryStatus(ctx, &orderApi.SetDeliveryStatusRequest{OrderId: r.GetOrderId(), Status: types.DELIVERY_STATUS(1)})
 	if err != nil {
 		log.Fatalf("could not set delivery status: %v", err)
 	}

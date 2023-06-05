@@ -5,6 +5,8 @@ import (
 	"flag"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -36,14 +38,14 @@ func main() {
 		}
 	}(conn)
 
-	c := customerApi.NewCustomerServiceClient(conn)
+	c := services.NewCustomerServiceClient(conn)
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	// Adding Customer
-	customer := &customerApi.Customer{
+	customer := &types.Customer{
 		Name: "Max Mustermann",
-		Address: &customerApi.Address{
+		Address: &types.Address{
 			Street:  "Mustermannstraße 42",
 			Zip:     "80335",
 			City:    "Munich",
@@ -54,7 +56,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not get: %v", err)
 	}
-	log.Printf("Getting id: %d", r.GetCustomerId())
+	log.Printf("Getting id: %v", r.GetCustomerId())
 
 	// Getting Customer
 	r2, err := c.GetCustomer(ctx, &customerApi.GetCustomerRequest{CustomerId: r.GetCustomerId()})

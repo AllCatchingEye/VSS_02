@@ -1,42 +1,8 @@
 syntax = "proto3";
 package shipmentApi;
-option go_package = ".;shipmentApi";
+option go_package = "gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi";
 
-service ShipmentService {
-    rpc ShipmentOrder (ShipMyOrderRequest) returns (ShipMyOrderReply){}
-}
-
-enum DELIVERY_STATUS{
-    NOT_SENT = 0;
-    UNDER_WAY = 1;
-    DELIVERED = 2;
-}
-
-message Customer {
-    string name = 1;
-    Address address = 2;
-}
-
-message Address {
-    string street = 1;
-    string zip = 3;
-    string city = 4;
-    string country = 5;
-}
-
-message Order {
-    Customer customer = 1;
-    map<uint32, int32> products = 2;
-    bool orderStatus = 3;
-    bool paymentStatus = 4;
-    DELIVERY_STATUS deliveryStatus = 5;
-}
-
-message Deliverer {
-    uint32 delivererId = 1;
-    string name = 2;
-    Address address = 3;
-}
+import "microservices/api/types/types.proto";
 
 message ShipMyOrderRequest {
     uint32 customerId = 1;
@@ -45,5 +11,5 @@ message ShipMyOrderRequest {
 
 message ShipMyOrderReply {
     uint32 orderId = 1;
-    Address address = 2;
+    types.Address address = 2;
 }
