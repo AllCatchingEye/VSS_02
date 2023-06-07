@@ -11,7 +11,7 @@ message Address {
 
 message Customer {
     string name = 1;
-    Address address = 2;
+    types.Address address = 2;
 }
 
 message Order {
@@ -23,16 +23,18 @@ message Order {
 }
 
 message Product {
-    string name = 1;
-    string description = 2;
-    double price = 3;
-    uint32 supplier = 4;
+    uint32 productId = 1;
+    string name = 2;
+    string description = 3;
+    double price = 4;
+    uint32 supplier = 5;
 }
 
 message Supplier {
-    string name = 1;
-    Address address = 2;
-    repeated uint32 products = 3;
+    uint32 supplierId = 1;
+    string name = 2;
+    types.Address address = 3;
+    repeated types.Product products = 4;
 }
 
 message Deliverer {

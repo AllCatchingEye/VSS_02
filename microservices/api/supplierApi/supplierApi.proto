@@ -30,7 +30,7 @@ message RemoveSupplierReply {
 
 message AddProductsRequest {
     uint32 supplierId = 1;
-    repeated uint32 products = 2;
+    repeated types.Product products = 2;
 }
 
 message AddProductsReply {

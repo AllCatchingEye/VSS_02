@@ -44,14 +44,22 @@ func main() {
 	defer cancel()
 	// Adding Supplier
 	supplier := &types.Supplier{
-		Name: "Obstlieferant",
+		SupplierId: 1,
+		Name:       "Obstlieferant",
 		Address: &types.Address{
 			Street:  "Obststraße",
 			Zip:     "12345",
 			City:    "Obsthausen",
 			Country: "Obstland",
 		},
-		Products: []uint32{1, 2},
+		Products: []*types.Product{
+			{
+				Name:        "Orange",
+				Description: "Eine orangene Orange",
+				Price:       0.99,
+				Supplier:    1,
+			},
+		},
 	}
 	r, err := c.AddSupplier(ctx, &supplierApi.AddSupplierRequest{Supplier: supplier})
 	if err != nil {
@@ -67,7 +75,7 @@ func main() {
 	log.Printf("Getting supplierApi: %v", r2.GetSupplier().GetName())
 
 	// Add Products
-	r3, err := c.AddProducts(ctx, &supplierApi.AddProductsRequest{SupplierId: r.GetSupplierId(), Products: []uint32{3, 4}})
+	r3, err := c.AddProducts(ctx, &supplierApi.AddProductsRequest{SupplierId: r.GetSupplierId(), Products: []*types.Product{{Name: "Birne", Description: "Eine Birne", Price: 1.99, Supplier: supplier.GetSupplierId()}, {Name: "Apfel", Description: "Ein Apfel", Price: 1.99, Supplier: supplier.GetSupplierId()}}})
 	if err != nil {
 		log.Fatalf("could add products: %v", err)
 	}

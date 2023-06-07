@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
@@ -43,7 +40,7 @@ func main() {
 		}
 	}(customerConn)
 
-	customerClient := services.NewCustomerServiceClient(customerConn)
+	//customerClient := services.NewCustomerServiceClient(customerConn)
 
 	// set context
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -57,7 +54,7 @@ func main() {
 	defer nc.Close()
 
 	subscription, err := nc.Subscribe("log.*", func(msg *nats.Msg) {
-		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s", msg.Subject, string(msg.Data))
+		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
 	})
 	if err != nil {
 		log.Fatal("cannot subscribe")
@@ -72,21 +69,7 @@ func main() {
 	var wc sync.WaitGroup
 	wc.Add(1)
 
-	// Adding Customer
-	customer := &types.Customer{
-		Name: "Max Mustermann",
-		Address: &types.Address{
-			Street:  "Mustermannstraße 42",
-			Zip:     "80335",
-			City:    "Munich",
-			Country: "Germany",
-		},
-	}
-	r, err := customerClient.AddCustomer(ctx, &customerApi.AddCustomerRequest{Customer: customer})
-	if err != nil {
-		log.Fatalf("could not get: %v", err)
-	}
-	fmt.Printf("RES: \tGetting id: %d\n", r.GetCustomerId())
+	fmt.Println("Context: ", ctx)
 
 	// wait for async
 	wc.Wait()

@@ -72,7 +72,7 @@ func main() {
 		log.Printf("Product id: %d", product)
 	}
 
-	// Getting Customer
+	// Getting Products
 	productIds := []uint32{r.GetProductIds()[0], r.GetProductIds()[1]}
 	r2, err := c.GetProducts(ctx, &stockApi.GetProductsRequest{ProductIds: productIds})
 	if err != nil {
@@ -83,7 +83,7 @@ func main() {
 		fmt.Printf("Product: %s\n", product.GetName())
 	}
 
-	// Remove Customer Apple
+	// Remove Product Apple
 	r3, err := c.RemoveProduct(ctx, &stockApi.RemoveProductRequest{ProductId: productIds[0]})
 	if err != nil {
 		log.Fatalf("could not remove product: %v", err)

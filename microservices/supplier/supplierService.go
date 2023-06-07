@@ -36,7 +36,10 @@ func (state *server) AddSupplier(ctx context.Context, req *supplierApi.AddSuppli
 		log.Print("log.supplierApi: cannot publish event")
 	}
 	newSupplier := req.GetSupplier()
-	supplierID := generateUniqueSupplierID(state.supplier)
+	supplierID := newSupplier.GetSupplierId()
+	if supplierID == 0 {
+		supplierID = generateUniqueSupplierID(state.supplier)
+	}
 	state.supplier[supplierID] = newSupplier
 	return &supplierApi.AddSupplierReply{SupplierId: supplierID}, nil
 }
@@ -55,7 +58,7 @@ func (state *server) GetSupplier(ctx context.Context, req *supplierApi.GetSuppli
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplierApi not found")
+		return nil, fmt.Errorf("supplier to get not found")
 	}
 	return &supplierApi.GetSupplierReply{Supplier: supplier}, nil
 }
@@ -74,7 +77,7 @@ func (state *server) RemoveSupplier(ctx context.Context, req *supplierApi.Remove
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplierApi not found")
+		return nil, fmt.Errorf("supplier to remove not found")
 	}
 	delete(state.supplier, supplierId)
 	return &supplierApi.RemoveSupplierReply{Supplier: supplier}, nil
@@ -86,17 +89,19 @@ func (state *server) AddProducts(ctx context.Context, req *supplierApi.AddProduc
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetSupplierId())
+	fmt.Println("SupplierId: ", req.GetSupplierId())
 	err := state.nats.Publish("log.supplierApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.supplierApi: cannot publish event")
 	}
+	fmt.Println("Nats logs finished.")
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplierApi not found")
+		return nil, fmt.Errorf("supplier to add products to not found")
 	}
 	supplier.Products = append(supplier.Products, req.GetProducts()...)
+	fmt.Println("Supplier: adding products succeeded.")
 	return &supplierApi.AddProductsReply{Supplier: supplier}, nil
 }
 
@@ -114,11 +119,11 @@ func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.Remove
 	}
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplierApi not found")
+		return nil, fmt.Errorf("supplier to remove products not found")
 	}
 	for _, productToRemove := range req.GetProducts() {
 		for i, productOfSupplier := range supplier.Products {
-			if productOfSupplier == productToRemove {
+			if productOfSupplier.GetProductId() == productToRemove {
 				supplier.Products = append(supplier.Products[:i], supplier.Products[i+1:]...)
 				break
 			}
@@ -141,14 +146,14 @@ func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderPro
 	supplierId := req.GetSupplierId()
 	supplier, ok := state.supplier[supplierId]
 	if !ok {
-		return nil, fmt.Errorf("supplierApi not found")
+		return nil, fmt.Errorf("supplier to order products from not found")
 	}
 	productToOrder := req.GetProductId()
 	amount := req.GetAmount()
 	// find product id in products of supplierApi, if not found return error
 	found := false
 	for _, productOfSupplier := range supplier.Products {
-		if productOfSupplier == productToOrder {
+		if productOfSupplier.GetProductId() == productToOrder {
 			found = true
 			break
 		}

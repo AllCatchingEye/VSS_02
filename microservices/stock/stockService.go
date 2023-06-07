@@ -8,8 +8,10 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"math/rand"
 	"net"
@@ -35,6 +37,7 @@ func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsR
 	if err != nil {
 		log.Print("log.stockApi: cannot publish event")
 	}
+	fmt.Println("Nats logs finished.")
 	newProducts := req.GetProducts()
 	var productIDs []uint32
 	for _, product := range newProducts {
@@ -42,6 +45,32 @@ func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsR
 		productIDs = append(productIDs, productID)
 		state.products[productID] = product
 	}
+	fmt.Println("Stock: adding products succeeded.")
+	// Add products to supplier
+	supplierAddress, err := state.redis.Get(context.TODO(), "service:supplierApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the result %v", err)
+	}
+	fmt.Println("supplierAddress successful.")
+	supplierConn, err := grpc.Dial(supplierAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection %v", err)
+		}
+	}(supplierConn)
+	fmt.Println("supplierConn successful.")
+
+	supplierClient := services.NewSupplierServiceClient(supplierConn)
+	fmt.Println("supplierClient successful.")
+	res, err := supplierClient.AddProducts(context.Background(), &supplierApi.AddProductsRequest{SupplierId: newProducts[0].Supplier, Products: newProducts})
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Added products to supplier: ", res.GetSupplier().GetName(), "(ID: ", res.GetSupplier().GetSupplierId(), ")")
 	return &stockApi.AddProductsReply{ProductIds: productIDs}, nil
 }
 
