@@ -13,3 +13,12 @@ message ShipMyOrderReply {
     uint32 orderId = 1;
     types.Address address = 2;
 }
+
+message IsOrderShippedRequest {
+    uint32 customerId = 1;
+    uint32 orderId = 2;
+}
+
+message IsOrderShippedReply {
+    bool isShipped = 1;
+}

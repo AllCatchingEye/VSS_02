@@ -30,12 +30,14 @@ service PaymentService {
 
 service ShipmentService {
     rpc ShipMyOrder (shipmentApi.ShipMyOrderRequest) returns (shipmentApi.ShipMyOrderReply){}
+    rpc IsOrderShipped (shipmentApi.IsOrderShippedRequest) returns (shipmentApi.IsOrderShippedReply){}
 }
 
 service StockService {
     rpc AddProducts (stockApi.AddProductsRequest) returns (stockApi.AddProductsReply){}
     rpc GetProducts (stockApi.GetProductsRequest) returns (stockApi.GetProductsReply){}
     rpc RemoveProduct (stockApi.RemoveProductRequest) returns (stockApi.RemoveProductReply){}
+    rpc OrderProducts (stockApi.OrderProductsRequest) returns (stockApi.OrderProductsReply){}
 }
 
 service SupplierService {

@@ -22,9 +22,9 @@ import (
 // TODO: Ist es erlaubt hier die anderen Typen zu importieren?
 type server struct {
 	services.ShipmentServiceServer
-	redis      *redis.Client
-	nats       *nats.Conn
-	sentOrders []uint32
+	redis         *redis.Client
+	nats          *nats.Conn
+	shippedOrders []uint32
 }
 
 func (state *server) ShipMyOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
@@ -52,7 +52,7 @@ func (state *server) ShipMyOrder(ctx context.Context, req *shipmentApi.ShipMyOrd
 		return nil, err
 	}
 	fmt.Println("Could get order: ", orderID)
-	state.sentOrders = append(state.sentOrders, orderID)
+	state.shippedOrders = append(state.shippedOrders, orderID)
 
 	// set delivery status
 	_, err = setDeliveryStatus(state.redis, req.GetOrderId())
@@ -62,6 +62,40 @@ func (state *server) ShipMyOrder(ctx context.Context, req *shipmentApi.ShipMyOrd
 	fmt.Println("Delivery status set successfully.")
 
 	return &shipmentApi.ShipMyOrderReply{OrderId: orderID, Address: customer.GetAddress()}, nil
+}
+
+func (state *server) IsOrderShipped(ctx context.Context, req *shipmentApi.IsOrderShippedRequest) (*shipmentApi.IsOrderShippedReply, error) {
+	fmt.Println("IsOrderShipped called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
+	fmt.Println(req.GetOrderId())
+	err := state.nats.Publish("log.shipmentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("shipmentApi: cannot publish event")
+	}
+	// Check if customer exists
+	fmt.Println("checking customerID: ", req.GetCustomerId())
+	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Could get customer: ", customer.GetName())
+	// Check if order exists
+	fmt.Println("checking orderID: ", req.GetOrderId())
+	orderID, err := checkOrderID(state.redis, req.GetOrderId(), req.GetCustomerId())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Could get order: ", orderID)
+
+	for _, shippedOrder := range state.shippedOrders {
+		if orderID == shippedOrder {
+			return &shipmentApi.IsOrderShippedReply{IsShipped: true}, nil
+		}
+	}
+	return &shipmentApi.IsOrderShippedReply{IsShipped: false}, nil
 }
 
 func main() {
@@ -98,7 +132,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	services.RegisterShipmentServiceServer(s, &server{redis: rdb, nats: nc, sentOrders: []uint32{}})
+	services.RegisterShipmentServiceServer(s, &server{redis: rdb, nats: nc, shippedOrders: []uint32{}})
 	fmt.Println("creating shipmentApi service finished")
 
 	if err := s.Serve(lis); err != nil {

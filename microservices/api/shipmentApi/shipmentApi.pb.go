@@ -131,6 +131,108 @@ func (x *ShipMyOrderReply) GetAddress() *types.Address {
 	return nil
 }
 
+type IsOrderShippedRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CustomerId uint32 `protobuf:"varint,1,opt,name=customerId,proto3" json:"customerId,omitempty"`
+	OrderId    uint32 `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`
+}
+
+func (x *IsOrderShippedRequest) Reset() {
+	*x = IsOrderShippedRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IsOrderShippedRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsOrderShippedRequest) ProtoMessage() {}
+
+func (x *IsOrderShippedRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsOrderShippedRequest.ProtoReflect.Descriptor instead.
+func (*IsOrderShippedRequest) Descriptor() ([]byte, []int) {
+	return file_microservices_api_shipmentApi_shipmentApi_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *IsOrderShippedRequest) GetCustomerId() uint32 {
+	if x != nil {
+		return x.CustomerId
+	}
+	return 0
+}
+
+func (x *IsOrderShippedRequest) GetOrderId() uint32 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+type IsOrderShippedReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	IsShipped bool `protobuf:"varint,1,opt,name=isShipped,proto3" json:"isShipped,omitempty"`
+}
+
+func (x *IsOrderShippedReply) Reset() {
+	*x = IsOrderShippedReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *IsOrderShippedReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*IsOrderShippedReply) ProtoMessage() {}
+
+func (x *IsOrderShippedReply) ProtoReflect() protoreflect.Message {
+	mi := &file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use IsOrderShippedReply.ProtoReflect.Descriptor instead.
+func (*IsOrderShippedReply) Descriptor() ([]byte, []int) {
+	return file_microservices_api_shipmentApi_shipmentApi_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *IsOrderShippedReply) GetIsShipped() bool {
+	if x != nil {
+		return x.IsShipped
+	}
+	return false
+}
+
 var File_microservices_api_shipmentApi_shipmentApi_proto protoreflect.FileDescriptor
 
 var file_microservices_api_shipmentApi_shipmentApi_proto_rawDesc = []byte{
@@ -150,13 +252,22 @@ var file_microservices_api_shipmentApi_shipmentApi_proto_rawDesc = []byte{
 	0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x07, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x49,
 	0x64, 0x12, 0x28, 0x0a, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x18, 0x02, 0x20, 0x01,
 	0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x41, 0x64, 0x64, 0x72, 0x65,
-	0x73, 0x73, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x42, 0x57, 0x5a, 0x55, 0x67,
-	0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e, 0x6c, 0x72, 0x7a, 0x2e, 0x64, 0x65, 0x2f, 0x76, 0x73, 0x73,
-	0x2f, 0x73, 0x65, 0x6d, 0x65, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x6f, 0x62, 0x2d, 0x32, 0x33, 0x73,
-	0x73, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x2d, 0x32, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x32,
-	0x2d, 0x67, 0x72, 0x70, 0x30, 0x36, 0x2f, 0x6d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x73, 0x68, 0x69, 0x70, 0x6d, 0x65, 0x6e,
-	0x74, 0x41, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x73, 0x52, 0x07, 0x61, 0x64, 0x64, 0x72, 0x65, 0x73, 0x73, 0x22, 0x51, 0x0a, 0x15, 0x49,
+	0x73, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x53, 0x68, 0x69, 0x70, 0x70, 0x65, 0x64, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x1e, 0x0a, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72,
+	0x49, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d,
+	0x65, 0x72, 0x49, 0x64, 0x12, 0x18, 0x0a, 0x07, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x49, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x07, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x49, 0x64, 0x22, 0x33,
+	0x0a, 0x13, 0x49, 0x73, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x53, 0x68, 0x69, 0x70, 0x70, 0x65, 0x64,
+	0x52, 0x65, 0x70, 0x6c, 0x79, 0x12, 0x1c, 0x0a, 0x09, 0x69, 0x73, 0x53, 0x68, 0x69, 0x70, 0x70,
+	0x65, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x09, 0x69, 0x73, 0x53, 0x68, 0x69, 0x70,
+	0x70, 0x65, 0x64, 0x42, 0x57, 0x5a, 0x55, 0x67, 0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e, 0x6c, 0x72,
+	0x7a, 0x2e, 0x64, 0x65, 0x2f, 0x76, 0x73, 0x73, 0x2f, 0x73, 0x65, 0x6d, 0x65, 0x73, 0x74, 0x65,
+	0x72, 0x2f, 0x6f, 0x62, 0x2d, 0x32, 0x33, 0x73, 0x73, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x2d,
+	0x32, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x32, 0x2d, 0x67, 0x72, 0x70, 0x30, 0x36, 0x2f, 0x6d,
+	0x69, 0x63, 0x72, 0x6f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61, 0x70, 0x69,
+	0x2f, 0x73, 0x68, 0x69, 0x70, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -171,14 +282,16 @@ func file_microservices_api_shipmentApi_shipmentApi_proto_rawDescGZIP() []byte {
 	return file_microservices_api_shipmentApi_shipmentApi_proto_rawDescData
 }
 
-var file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_microservices_api_shipmentApi_shipmentApi_proto_goTypes = []interface{}{
-	(*ShipMyOrderRequest)(nil), // 0: shipmentApi.ShipMyOrderRequest
-	(*ShipMyOrderReply)(nil),   // 1: shipmentApi.ShipMyOrderReply
-	(*types.Address)(nil),      // 2: types.Address
+	(*ShipMyOrderRequest)(nil),    // 0: shipmentApi.ShipMyOrderRequest
+	(*ShipMyOrderReply)(nil),      // 1: shipmentApi.ShipMyOrderReply
+	(*IsOrderShippedRequest)(nil), // 2: shipmentApi.IsOrderShippedRequest
+	(*IsOrderShippedReply)(nil),   // 3: shipmentApi.IsOrderShippedReply
+	(*types.Address)(nil),         // 4: types.Address
 }
 var file_microservices_api_shipmentApi_shipmentApi_proto_depIdxs = []int32{
-	2, // 0: shipmentApi.ShipMyOrderReply.address:type_name -> types.Address
+	4, // 0: shipmentApi.ShipMyOrderReply.address:type_name -> types.Address
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -216,6 +329,30 @@ func file_microservices_api_shipmentApi_shipmentApi_proto_init() {
 				return nil
 			}
 		}
+		file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IsOrderShippedRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_microservices_api_shipmentApi_shipmentApi_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*IsOrderShippedReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -223,7 +360,7 @@ func file_microservices_api_shipmentApi_shipmentApi_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_microservices_api_shipmentApi_shipmentApi_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

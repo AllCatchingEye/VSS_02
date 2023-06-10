@@ -162,6 +162,7 @@ func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderPro
 		return nil, fmt.Errorf("product not found")
 	}
 	time.Sleep(10 * time.Second)
+	// TODO: send response to stock api (asyncon)
 	return &supplierApi.OrderProductReply{ProductId: productToOrder, Amount: amount}, nil
 }
 

@@ -28,3 +28,12 @@ message RemoveProductReply {
     types.Product product = 1;
 }
 
+message OrderProductsRequest {
+    uint32 orderId = 1;
+}
+
+message OrderProductsReply {
+    uint32 orderId = 1;
+    bool requestSuccessful = 2;
+}
+

@@ -9,6 +9,7 @@ import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -53,6 +54,13 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 		DeliveryStatus: types.DELIVERY_STATUS(0),
 	}
 	orderId := generateUniqueOrderID(state.orders)
+	state.orders[orderId] = order
+	// call stock to reserve products
+	res, err := callStock(state.redis, orderId)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Stock received request: ", res)
 	state.orders[orderId] = order
 	return &orderApi.NewOrderReply{OrderId: orderId, Order: order}, nil
 }
@@ -226,4 +234,33 @@ func checkCustomerID(redis *redis.Client, customerID uint32) (*types.Customer, e
 		return nil, fmt.Errorf("customer with ID %v does not exist: %v", customerID, err)
 	}
 	return res.GetCustomer(), nil
+}
+
+func callStock(client *redis.Client, orderId uint32) (bool, error) {
+	// Check if stock exists
+	stockAddress, err := client.Get(context.Background(), "service:stockApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the stock service address %v", err)
+	}
+	fmt.Println("stockAddress successful.")
+	stockConn, err := grpc.Dial(stockAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to stock service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to stock service %v", err)
+		}
+	}(stockConn)
+	fmt.Println("stockConn successful.")
+
+	stockClient := services.NewStockServiceClient(stockConn)
+	fmt.Println("stockClient successful.")
+	// send order to stock service
+	res, err := stockClient.OrderProducts(context.Background(), &stockApi.OrderProductsRequest{OrderId: orderId})
+	if err != nil {
+		return false, fmt.Errorf("stock service could not process order %v: %v", orderId, err)
+	}
+	return res.GetRequestSuccessful(), nil
 }

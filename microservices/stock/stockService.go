@@ -120,6 +120,26 @@ func (state *server) RemoveProduct(ctx context.Context, req *stockApi.RemoveProd
 	return &stockApi.RemoveProductReply{Product: product}, nil
 }
 
+func (state *server) OrderProducts(ctx context.Context, req *stockApi.OrderProductsRequest) (*stockApi.OrderProductsReply, error) {
+	fmt.Println("OrderProduct called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
+	orderId := req.GetOrderId()
+	fmt.Println(orderId)
+	err := state.nats.Publish("log.stockApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.stockApi: cannot publish event")
+	}
+	fmt.Println("OrderID: ", orderId)
+	// TODO: check if order exists and get products
+	// TODO: reserve products in stock (dekrement number)
+	// TODO: request missing products from supplier
+	// TODO: set order status when every product is available (asyncron)
+	return &stockApi.OrderProductsReply{}, nil
+}
+
 func main() {
 	flagHost := flag.String("host", "127.0.0.1", "address of customerApi service")
 	flagPort := flag.String("port", "50055", "port of customerApi service")

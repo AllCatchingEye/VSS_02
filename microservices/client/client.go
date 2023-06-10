@@ -4,7 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
@@ -15,13 +14,12 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
-	"sync"
 	"time"
 )
 
 func main() {
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "customerAddress and port of Redis server")
-	flagNATS := flag.String("nats", "127.0.0.1:4222", "customerAddress and port of NATS server")
+	//flagNATS := flag.String("nats", "127.0.0.1:4222", "customerAddress and port of NATS server")
 	flag.Parse()
 
 	rdb := redis.NewClient(&redis.Options{
@@ -109,30 +107,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
-	// subscribe to nats logging
-	nc, err := nats.Connect(*flagNATS)
-	if err != nil {
-		log.Fatal("cannot connect to nats")
-	}
-	defer nc.Close()
-
-	subscription, err := nc.Subscribe("log.*", func(msg *nats.Msg) {
-		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
-	})
-	if err != nil {
-		log.Fatal("cannot subscribe")
-	}
-	defer func(subscription *nats.Subscription) {
-		err := subscription.Unsubscribe()
-		if err != nil {
-			log.Fatal("cannot unsubscribe")
-		}
-	}(subscription) //nolint
-
-	var wc sync.WaitGroup
-	wc.Add(1)
-
-	fmt.Println("Context: ", ctx)
+	log.Printf("Context: %v", ctx)
 
 	// Add Customer
 	customer := &types.Customer{
@@ -161,13 +136,13 @@ func main() {
 	}
 	log.Printf("Getting id: %v", rOrder.GetOrderId())
 	order := rOrder.GetOrder()
-	fmt.Println("Order: ", order)
+	log.Printf("Order: %v", order)
 	orderID := rOrder.GetOrderId()
-	fmt.Println("OrderID: ", orderID)
+	log.Printf("OrderID: %v", orderID)
 
-	fmt.Println("Orderstatus: ", order.GetOrderStatus())
-	fmt.Println("Paymentstatus: ", order.GetPaymentStatus())
-	fmt.Println("Deliverystatus: ", order.GetDeliveryStatus())
+	log.Printf("Orderstatus: %v", order.GetOrderStatus())
+	log.Printf("Paymentstatus: %v", order.GetPaymentStatus())
+	log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
 
 	// Pay Order
 	rPayment, err := paymentClient.PayMyOrder(ctx, &paymentApi.PayMyOrderRequest{
@@ -179,6 +154,13 @@ func main() {
 	}
 	log.Printf("Payed order with ID: %v", rPayment.GetOrderId())
 
+	// Check if order is payed
+	rPayment2, err := paymentClient.IsOrderPayed(ctx, &paymentApi.IsOrderPayedRequest{CustomerId: customerID, OrderId: orderID})
+	if err != nil {
+		log.Fatalf("could not check if order is payed %v: %v", orderID, err)
+	}
+	log.Printf("Order %v is payed: %v", orderID, rPayment2.GetIsPayed())
+
 	// Get Order
 	rOrder2, err := orderClient.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
 	if err != nil {
@@ -186,13 +168,13 @@ func main() {
 	}
 	log.Printf("Getting order: %v", rOrder2.GetOrder())
 	order = rOrder2.GetOrder()
-	fmt.Println("Order: ", order)
+	log.Printf("Order: %v", order)
 	orderID = rOrder2.GetOrderId()
-	fmt.Println("OrderID: ", orderID)
+	log.Printf("OrderID: %v", orderID)
 
-	fmt.Println("Orderstatus: ", order.GetOrderStatus())
-	fmt.Println("Paymentstatus: ", order.GetPaymentStatus())
-	fmt.Println("Deliverystatus: ", order.GetDeliveryStatus())
+	log.Printf("Orderstatus: %v", order.GetOrderStatus())
+	log.Printf("Paymentstatus: %v", order.GetPaymentStatus())
+	log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
 
 	// Set Delivery Status
 	rShipment, err := shipmentClient.ShipMyOrder(ctx, &shipmentApi.ShipMyOrderRequest{CustomerId: customerID, OrderId: orderID})
@@ -201,6 +183,13 @@ func main() {
 	}
 	log.Printf("Shipped order with ID: %v", rShipment.GetOrderId())
 
+	// Check if order is shipped
+	rShipment2, err := shipmentClient.IsOrderShipped(ctx, &shipmentApi.IsOrderShippedRequest{CustomerId: customerID, OrderId: orderID})
+	if err != nil {
+		log.Fatalf("could not check if order %v is shipped: %v", orderID, err)
+	}
+	log.Printf("Order with ID: %v is shipped: %v", orderID, rShipment2.GetIsShipped())
+
 	// Get Order
 	rOrder3, err := orderClient.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
 	if err != nil {
@@ -208,14 +197,13 @@ func main() {
 	}
 	log.Printf("Getting order: %v", rOrder2.GetOrder())
 	order = rOrder3.GetOrder()
-	fmt.Println("Order: ", order)
+	log.Printf("Order: %v", order)
 	orderID = rOrder3.GetOrderId()
-	fmt.Println("OrderID: ", orderID)
+	log.Printf("OrderID: %v", orderID)
 
-	fmt.Println("Orderstatus: ", order.GetOrderStatus())
-	fmt.Println("Paymentstatus: ", order.GetPaymentStatus())
-	fmt.Println("Deliverystatus: ", order.GetDeliveryStatus())
+	log.Printf("Orderstatus: %v", order.GetOrderStatus())
+	log.Printf("Paymentstatus: %v", order.GetPaymentStatus())
+	log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
 
-	// wait for async
-	wc.Wait()
+	fmt.Println("Done")
 }

@@ -554,7 +554,8 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ShipmentService_ShipMyOrder_FullMethodName = "/services.ShipmentService/ShipMyOrder"
+	ShipmentService_ShipMyOrder_FullMethodName    = "/services.ShipmentService/ShipMyOrder"
+	ShipmentService_IsOrderShipped_FullMethodName = "/services.ShipmentService/IsOrderShipped"
 )
 
 // ShipmentServiceClient is the client API for ShipmentService service.
@@ -562,6 +563,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ShipmentServiceClient interface {
 	ShipMyOrder(ctx context.Context, in *shipmentApi.ShipMyOrderRequest, opts ...grpc.CallOption) (*shipmentApi.ShipMyOrderReply, error)
+	IsOrderShipped(ctx context.Context, in *shipmentApi.IsOrderShippedRequest, opts ...grpc.CallOption) (*shipmentApi.IsOrderShippedReply, error)
 }
 
 type shipmentServiceClient struct {
@@ -581,11 +583,21 @@ func (c *shipmentServiceClient) ShipMyOrder(ctx context.Context, in *shipmentApi
 	return out, nil
 }
 
+func (c *shipmentServiceClient) IsOrderShipped(ctx context.Context, in *shipmentApi.IsOrderShippedRequest, opts ...grpc.CallOption) (*shipmentApi.IsOrderShippedReply, error) {
+	out := new(shipmentApi.IsOrderShippedReply)
+	err := c.cc.Invoke(ctx, ShipmentService_IsOrderShipped_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ShipmentServiceServer is the server API for ShipmentService service.
 // All implementations must embed UnimplementedShipmentServiceServer
 // for forward compatibility
 type ShipmentServiceServer interface {
 	ShipMyOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error)
+	IsOrderShipped(context.Context, *shipmentApi.IsOrderShippedRequest) (*shipmentApi.IsOrderShippedReply, error)
 	mustEmbedUnimplementedShipmentServiceServer()
 }
 
@@ -595,6 +607,9 @@ type UnimplementedShipmentServiceServer struct {
 
 func (UnimplementedShipmentServiceServer) ShipMyOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ShipMyOrder not implemented")
+}
+func (UnimplementedShipmentServiceServer) IsOrderShipped(context.Context, *shipmentApi.IsOrderShippedRequest) (*shipmentApi.IsOrderShippedReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method IsOrderShipped not implemented")
 }
 func (UnimplementedShipmentServiceServer) mustEmbedUnimplementedShipmentServiceServer() {}
 
@@ -627,6 +642,24 @@ func _ShipmentService_ShipMyOrder_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ShipmentService_IsOrderShipped_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(shipmentApi.IsOrderShippedRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShipmentServiceServer).IsOrderShipped(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ShipmentService_IsOrderShipped_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShipmentServiceServer).IsOrderShipped(ctx, req.(*shipmentApi.IsOrderShippedRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ShipmentService_ServiceDesc is the grpc.ServiceDesc for ShipmentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -638,6 +671,10 @@ var ShipmentService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "ShipMyOrder",
 			Handler:    _ShipmentService_ShipMyOrder_Handler,
 		},
+		{
+			MethodName: "IsOrderShipped",
+			Handler:    _ShipmentService_IsOrderShipped_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "microservices/api/services/services.proto",
@@ -647,6 +684,7 @@ const (
 	StockService_AddProducts_FullMethodName   = "/services.StockService/AddProducts"
 	StockService_GetProducts_FullMethodName   = "/services.StockService/GetProducts"
 	StockService_RemoveProduct_FullMethodName = "/services.StockService/RemoveProduct"
+	StockService_OrderProducts_FullMethodName = "/services.StockService/OrderProducts"
 )
 
 // StockServiceClient is the client API for StockService service.
@@ -656,6 +694,7 @@ type StockServiceClient interface {
 	AddProducts(ctx context.Context, in *stockApi.AddProductsRequest, opts ...grpc.CallOption) (*stockApi.AddProductsReply, error)
 	GetProducts(ctx context.Context, in *stockApi.GetProductsRequest, opts ...grpc.CallOption) (*stockApi.GetProductsReply, error)
 	RemoveProduct(ctx context.Context, in *stockApi.RemoveProductRequest, opts ...grpc.CallOption) (*stockApi.RemoveProductReply, error)
+	OrderProducts(ctx context.Context, in *stockApi.OrderProductsRequest, opts ...grpc.CallOption) (*stockApi.OrderProductsReply, error)
 }
 
 type stockServiceClient struct {
@@ -693,6 +732,15 @@ func (c *stockServiceClient) RemoveProduct(ctx context.Context, in *stockApi.Rem
 	return out, nil
 }
 
+func (c *stockServiceClient) OrderProducts(ctx context.Context, in *stockApi.OrderProductsRequest, opts ...grpc.CallOption) (*stockApi.OrderProductsReply, error) {
+	out := new(stockApi.OrderProductsReply)
+	err := c.cc.Invoke(ctx, StockService_OrderProducts_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StockServiceServer is the server API for StockService service.
 // All implementations must embed UnimplementedStockServiceServer
 // for forward compatibility
@@ -700,6 +748,7 @@ type StockServiceServer interface {
 	AddProducts(context.Context, *stockApi.AddProductsRequest) (*stockApi.AddProductsReply, error)
 	GetProducts(context.Context, *stockApi.GetProductsRequest) (*stockApi.GetProductsReply, error)
 	RemoveProduct(context.Context, *stockApi.RemoveProductRequest) (*stockApi.RemoveProductReply, error)
+	OrderProducts(context.Context, *stockApi.OrderProductsRequest) (*stockApi.OrderProductsReply, error)
 	mustEmbedUnimplementedStockServiceServer()
 }
 
@@ -715,6 +764,9 @@ func (UnimplementedStockServiceServer) GetProducts(context.Context, *stockApi.Ge
 }
 func (UnimplementedStockServiceServer) RemoveProduct(context.Context, *stockApi.RemoveProductRequest) (*stockApi.RemoveProductReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveProduct not implemented")
+}
+func (UnimplementedStockServiceServer) OrderProducts(context.Context, *stockApi.OrderProductsRequest) (*stockApi.OrderProductsReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method OrderProducts not implemented")
 }
 func (UnimplementedStockServiceServer) mustEmbedUnimplementedStockServiceServer() {}
 
@@ -783,6 +835,24 @@ func _StockService_RemoveProduct_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StockService_OrderProducts_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(stockApi.OrderProductsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StockServiceServer).OrderProducts(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StockService_OrderProducts_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StockServiceServer).OrderProducts(ctx, req.(*stockApi.OrderProductsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StockService_ServiceDesc is the grpc.ServiceDesc for StockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -801,6 +871,10 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RemoveProduct",
 			Handler:    _StockService_RemoveProduct_Handler,
+		},
+		{
+			MethodName: "OrderProducts",
+			Handler:    _StockService_OrderProducts_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
