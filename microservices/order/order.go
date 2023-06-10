@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"math/rand"
 	"net"
@@ -35,7 +37,14 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")
 	}
-	//TODO: check if customerApi exists (call customerApi service)
+	// Check if customer exists
+	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Could get customer: ", customer.GetName())
+
+	// Create new order
 	order := &types.Order{
 		Customer:       req.GetCustomerId(),
 		Products:       req.GetProducts(),
@@ -59,6 +68,14 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")
 	}
+	// Check if customer exists
+	fmt.Println("checking customerID: ", req.GetCustomerId())
+	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Could get customer: ", customer.GetName())
+
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
@@ -101,7 +118,7 @@ func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaym
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
-		return nil, fmt.Errorf("orderApi not found")
+		return nil, fmt.Errorf("order not found")
 	}
 	order.PaymentStatus = req.GetStatus()
 	return &orderApi.SetPaymentStatusReply{PaymentStatus: order.GetPaymentStatus()}, nil
@@ -181,4 +198,32 @@ func generateUniqueOrderID(orders map[uint32]*types.Order) uint32 {
 		_, exists = orders[orderId]
 	}
 	return orderId
+}
+
+func checkCustomerID(redis *redis.Client, customerID uint32) (*types.Customer, error) {
+	// Check if customer exists
+	customerAddress, err := redis.Get(context.TODO(), "service:customerApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the customer service address %v", err)
+	}
+	fmt.Println("customerAddress successful.")
+	customerConn, err := grpc.Dial(customerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to customer service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to customer service %v", err)
+		}
+	}(customerConn)
+	fmt.Println("customerConn successful.")
+
+	customerClient := services.NewCustomerServiceClient(customerConn)
+	fmt.Println("customerClient successful.")
+	res, err := customerClient.GetCustomer(context.Background(), &customerApi.GetCustomerRequest{CustomerId: customerID})
+	if err != nil {
+		return nil, fmt.Errorf("customer with ID %v does not exist: %v", customerID, err)
+	}
+	return res.GetCustomer(), nil
 }

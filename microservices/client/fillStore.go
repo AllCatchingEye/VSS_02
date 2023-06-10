@@ -189,18 +189,21 @@ func main() {
 
 	fruitProducts := []*types.Product{
 		{
+			ProductId:   111,
 			Name:        "Apple",
 			Description: "Apple, keeps the doctor away",
 			Price:       1,
 			Supplier:    supplierID3,
 		},
 		{
+			ProductId:   222,
 			Name:        "Banana",
 			Description: "Banana, very useful for monkeys",
 			Price:       2,
 			Supplier:    supplierID3,
 		},
 		{
+			ProductId:   333,
 			Name:        "Orange",
 			Description: "Orange, very orange",
 			Price:       1,

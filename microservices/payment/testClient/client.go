@@ -49,7 +49,7 @@ func main() {
 	log.Printf("orderApi got payed, id: %d", r.GetOrderId())
 
 	// check paymentApi status
-	r2, err := c.IsOrderPayed(ctx, &paymentApi.IsOrderPayedRequest{OrderId: 1})
+	r2, err := c.IsOrderPayed(ctx, &paymentApi.IsOrderPayedRequest{CustomerId: 0, OrderId: 1})
 	if err != nil {
 		log.Fatalf("could not get: %v", err)
 	}

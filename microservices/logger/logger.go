@@ -20,7 +20,7 @@ func main() {
 	defer nc.Close()
 
 	subscription, err := nc.Subscribe("log.*", func(msg *nats.Msg) {
-		fmt.Printf("got message subject: %s\ndata: %s", msg.Subject, string(msg.Data))
+		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
 	})
 	if err != nil {
 		log.Fatal("cannot subscribe")

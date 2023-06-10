@@ -41,7 +41,10 @@ func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsR
 	newProducts := req.GetProducts()
 	var productIDs []uint32
 	for _, product := range newProducts {
-		productID := generateUniqueProductID(state.products)
+		productID := product.GetProductId()
+		if productID == 0 {
+			productID = generateUniqueProductID(state.products)
+		}
 		productIDs = append(productIDs, productID)
 		state.products[productID] = product
 	}

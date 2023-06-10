@@ -48,7 +48,7 @@ func (state *server) GetCustomer(ctx context.Context, req *customerApi.GetCustom
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetCustomerId())
+	fmt.Println("Received customerID: ", req.GetCustomerId())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("cannot publish event")

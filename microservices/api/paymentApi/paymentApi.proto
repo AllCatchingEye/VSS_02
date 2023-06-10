@@ -13,7 +13,8 @@ message PayMyOrderReply {
 }
 
 message IsOrderPayedRequest {
-    uint32 orderId = 1;
+    uint32 customerId = 1;
+    uint32 orderId = 2;
 }
 
 message IsOrderPayedReply {
