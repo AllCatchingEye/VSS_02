@@ -554,14 +554,14 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ShipmentService_ShipmentOrder_FullMethodName = "/services.ShipmentService/ShipmentOrder"
+	ShipmentService_ShipMyOrder_FullMethodName = "/services.ShipmentService/ShipMyOrder"
 )
 
 // ShipmentServiceClient is the client API for ShipmentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ShipmentServiceClient interface {
-	ShipmentOrder(ctx context.Context, in *shipmentApi.ShipMyOrderRequest, opts ...grpc.CallOption) (*shipmentApi.ShipMyOrderReply, error)
+	ShipMyOrder(ctx context.Context, in *shipmentApi.ShipMyOrderRequest, opts ...grpc.CallOption) (*shipmentApi.ShipMyOrderReply, error)
 }
 
 type shipmentServiceClient struct {
@@ -572,9 +572,9 @@ func NewShipmentServiceClient(cc grpc.ClientConnInterface) ShipmentServiceClient
 	return &shipmentServiceClient{cc}
 }
 
-func (c *shipmentServiceClient) ShipmentOrder(ctx context.Context, in *shipmentApi.ShipMyOrderRequest, opts ...grpc.CallOption) (*shipmentApi.ShipMyOrderReply, error) {
+func (c *shipmentServiceClient) ShipMyOrder(ctx context.Context, in *shipmentApi.ShipMyOrderRequest, opts ...grpc.CallOption) (*shipmentApi.ShipMyOrderReply, error) {
 	out := new(shipmentApi.ShipMyOrderReply)
-	err := c.cc.Invoke(ctx, ShipmentService_ShipmentOrder_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, ShipmentService_ShipMyOrder_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -585,7 +585,7 @@ func (c *shipmentServiceClient) ShipmentOrder(ctx context.Context, in *shipmentA
 // All implementations must embed UnimplementedShipmentServiceServer
 // for forward compatibility
 type ShipmentServiceServer interface {
-	ShipmentOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error)
+	ShipMyOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error)
 	mustEmbedUnimplementedShipmentServiceServer()
 }
 
@@ -593,8 +593,8 @@ type ShipmentServiceServer interface {
 type UnimplementedShipmentServiceServer struct {
 }
 
-func (UnimplementedShipmentServiceServer) ShipmentOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ShipmentOrder not implemented")
+func (UnimplementedShipmentServiceServer) ShipMyOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ShipMyOrder not implemented")
 }
 func (UnimplementedShipmentServiceServer) mustEmbedUnimplementedShipmentServiceServer() {}
 
@@ -609,20 +609,20 @@ func RegisterShipmentServiceServer(s grpc.ServiceRegistrar, srv ShipmentServiceS
 	s.RegisterService(&ShipmentService_ServiceDesc, srv)
 }
 
-func _ShipmentService_ShipmentOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _ShipmentService_ShipMyOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(shipmentApi.ShipMyOrderRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ShipmentServiceServer).ShipmentOrder(ctx, in)
+		return srv.(ShipmentServiceServer).ShipMyOrder(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ShipmentService_ShipmentOrder_FullMethodName,
+		FullMethod: ShipmentService_ShipMyOrder_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ShipmentServiceServer).ShipmentOrder(ctx, req.(*shipmentApi.ShipMyOrderRequest))
+		return srv.(ShipmentServiceServer).ShipMyOrder(ctx, req.(*shipmentApi.ShipMyOrderRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -635,8 +635,8 @@ var ShipmentService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ShipmentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "ShipmentOrder",
-			Handler:    _ShipmentService_ShipmentOrder_Handler,
+			MethodName: "ShipMyOrder",
+			Handler:    _ShipmentService_ShipMyOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

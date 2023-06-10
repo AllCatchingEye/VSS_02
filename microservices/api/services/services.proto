@@ -29,7 +29,7 @@ service PaymentService {
 }
 
 service ShipmentService {
-    rpc ShipmentOrder (shipmentApi.ShipMyOrderRequest) returns (shipmentApi.ShipMyOrderReply){}
+    rpc ShipMyOrder (shipmentApi.ShipMyOrderRequest) returns (shipmentApi.ShipMyOrderReply){}
 }
 
 service StockService {

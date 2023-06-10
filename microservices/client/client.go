@@ -10,6 +10,7 @@ import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -69,21 +70,40 @@ func main() {
 	// build connection to payment service
 	paymentAddress, err := rdb.Get(context.TODO(), "service:paymentApi").Result()
 	if err != nil {
-		log.Fatalf("error while trying to get the newOrder service address %v", err)
+		log.Fatalf("error while trying to get the payment service address %v", err)
 	}
 
 	paymentConn, err := grpc.Dial(paymentAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
-		log.Fatalf("did not connect to newOrder service: %v", err)
+		log.Fatalf("did not connect to payment service: %v", err)
 	}
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
 		if err != nil {
-			log.Fatalf("error while closing the connection to newOrder service %v", err)
+			log.Fatalf("error while closing the connection to payment service %v", err)
 		}
 	}(paymentConn)
 
 	paymentClient := services.NewPaymentServiceClient(paymentConn)
+
+	// build connection to payment service
+	shipmentAddress, err := rdb.Get(context.TODO(), "service:shipmentApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the shipment service address %v", err)
+	}
+
+	shipmentConn, err := grpc.Dial(shipmentAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to shipment service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to shipment service %v", err)
+		}
+	}(shipmentConn)
+
+	shipmentClient := services.NewShipmentServiceClient(shipmentConn)
 
 	// set context
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -168,6 +188,28 @@ func main() {
 	order = rOrder2.GetOrder()
 	fmt.Println("Order: ", order)
 	orderID = rOrder2.GetOrderId()
+	fmt.Println("OrderID: ", orderID)
+
+	fmt.Println("Orderstatus: ", order.GetOrderStatus())
+	fmt.Println("Paymentstatus: ", order.GetPaymentStatus())
+	fmt.Println("Deliverystatus: ", order.GetDeliveryStatus())
+
+	// Set Delivery Status
+	rShipment, err := shipmentClient.ShipMyOrder(ctx, &shipmentApi.ShipMyOrderRequest{CustomerId: customerID, OrderId: orderID})
+	if err != nil {
+		log.Fatalf("could not ship order %v: %v", orderID, err)
+	}
+	log.Printf("Shipped order with ID: %v", rShipment.GetOrderId())
+
+	// Get Order
+	rOrder3, err := orderClient.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
+	if err != nil {
+		log.Fatalf("could not get order %v: %v", orderID, err)
+	}
+	log.Printf("Getting order: %v", rOrder2.GetOrder())
+	order = rOrder3.GetOrder()
+	fmt.Println("Order: ", order)
+	orderID = rOrder3.GetOrderId()
 	fmt.Println("OrderID: ", orderID)
 
 	fmt.Println("Orderstatus: ", order.GetOrderStatus())

@@ -27,74 +27,37 @@ type server struct {
 	sentOrders []uint32
 }
 
-func (state *server) ShipmentOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
+func (state *server) ShipMyOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error) {
 	fmt.Println("ShipmentOrder called")
 	fmt.Println(req.GetOrderId())
 	err := state.nats.Publish("log.shipmentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("shipmentApi: cannot publish event")
 	}
-	address := state.getCustomerAddress(ctx, req)
-
-	orderId := state.getCustomersOrder(ctx, req)
-
-	state.sentOrders = append(state.sentOrders, orderId)
-
-	return &shipmentApi.ShipMyOrderReply{OrderId: orderId, Address: ConvertToShipmentAddress(address)}, nil
-}
-
-func (state *server) getCustomerAddress(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) *types.Address {
-	address, err := state.redis.Get(context.TODO(), "service:customerApi").Result()
+	// Check if customer exists
+	fmt.Println("checking customerID: ", req.GetCustomerId())
+	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
 	if err != nil {
-		log.Fatalf("error while trying to get the result %v", err)
+		return nil, err
 	}
-
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	fmt.Println("Could get customer: ", customer.GetName())
+	// Check if order exists
+	fmt.Println("checking orderID: ", req.GetOrderId())
+	orderID, err := checkOrderID(state.redis, req.GetOrderId(), req.GetCustomerId())
 	if err != nil {
-		log.Fatalf("did not connect: %v", err)
+		return nil, err
 	}
-	defer func(conn *grpc.ClientConn) {
-		err := conn.Close()
-		if err != nil {
-			log.Fatalf("error while closing the connection %v", err)
-		}
-	}(conn)
+	fmt.Println("Could get order: ", orderID)
+	state.sentOrders = append(state.sentOrders, orderID)
 
-	c := services.NewCustomerServiceClient(conn)
-
-	res, err := c.GetCustomer(ctx, &customerApi.GetCustomerRequest{CustomerId: req.CustomerId})
+	// set delivery status
+	_, err = setDeliveryStatus(state.redis, req.GetOrderId())
 	if err != nil {
-		log.Fatalf("could not find customerId %d: %v", req.CustomerId, err)
+		return nil, err
 	}
+	fmt.Println("Delivery status set successfully.")
 
-	return res.Customer.Address
-}
-
-func (state *server) getCustomersOrder(ctx context.Context, req *shipmentApi.ShipMyOrderRequest) uint32 {
-	address, err := state.redis.Get(context.TODO(), "service:orderApi").Result()
-	if err != nil {
-		log.Fatalf("error while trying to get the result %v", err)
-	}
-
-	conn, err := grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect: %v", err)
-	}
-	defer func(conn *grpc.ClientConn) {
-		err := conn.Close()
-		if err != nil {
-			log.Fatalf("error while closing the connection %v", err)
-		}
-	}(conn)
-
-	c := services.NewOrderServiceClient(conn)
-
-	res, err := c.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: req.CustomerId, OrderId: req.OrderId})
-	if err != nil {
-		log.Fatalf("could not find customerId %d: %v", req.CustomerId, err)
-	}
-
-	return res.OrderId
+	return &shipmentApi.ShipMyOrderReply{OrderId: orderID, Address: customer.GetAddress()}, nil
 }
 
 func main() {
@@ -139,12 +102,88 @@ func main() {
 	}
 }
 
-// ConvertToShipmentAddress Helper
-func ConvertToShipmentAddress(address *types.Address) *types.Address {
-	return &types.Address{
-		Street:  address.GetStreet(),
-		Zip:     address.GetZip(),
-		City:    address.GetCity(),
-		Country: address.GetCountry(),
+// Helper
+func checkCustomerID(redis *redis.Client, customerID uint32) (*types.Customer, error) {
+	// Check if customer exists
+	customerAddress, err := redis.Get(context.TODO(), "service:customerApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the customer service address %v", err)
 	}
+	fmt.Println("customerAddress successful.")
+	customerConn, err := grpc.Dial(customerAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to customer service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to customer service %v", err)
+		}
+	}(customerConn)
+	fmt.Println("customerConn successful.")
+
+	customerClient := services.NewCustomerServiceClient(customerConn)
+	fmt.Println("customerClient successful.")
+	res, err := customerClient.GetCustomer(context.Background(), &customerApi.GetCustomerRequest{CustomerId: customerID})
+	fmt.Println("checking customerID finished.")
+	if err != nil {
+		return nil, fmt.Errorf("customer with ID %v does not exist: %v", customerID, err)
+	}
+	return res.GetCustomer(), nil
+}
+
+func checkOrderID(redis *redis.Client, orderID uint32, customerID uint32) (uint32, error) {
+	// Check if order exists
+	orderAddress, err := redis.Get(context.TODO(), "service:orderApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the order service address %v", err)
+	}
+	fmt.Println("orderAddress successful.")
+	orderConn, err := grpc.Dial(orderAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to order service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to order service %v", err)
+		}
+	}(orderConn)
+	fmt.Println("orderConn successful.")
+
+	orderClient := services.NewOrderServiceClient(orderConn)
+	fmt.Println("orderClient successful.")
+	res, err := orderClient.GetOrder(context.Background(), &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
+	if err != nil {
+		return 0, fmt.Errorf("order with ID %v does not exist: %v", orderID, err)
+	}
+	return res.GetOrderId(), nil
+}
+
+func setDeliveryStatus(redis *redis.Client, orderID uint32) (types.DELIVERY_STATUS, error) {
+	// Check if order exists
+	orderAddress, err := redis.Get(context.TODO(), "service:orderApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the order service address %v", err)
+	}
+	fmt.Println("orderAddress successful.")
+	orderConn, err := grpc.Dial(orderAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to order service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to order service %v", err)
+		}
+	}(orderConn)
+	fmt.Println("orderConn successful.")
+
+	orderClient := services.NewOrderServiceClient(orderConn)
+	fmt.Println("orderClient successful.")
+	res, err := orderClient.SetDeliveryStatus(context.Background(), &orderApi.SetDeliveryStatusRequest{OrderId: orderID, Status: types.DELIVERY_STATUS_UNDER_WAY})
+	if err != nil {
+		return 0, fmt.Errorf("could not set payment status of order with ID %v: %v", orderID, err)
+	}
+	return res.GetDeliveryStatus(), nil
 }
