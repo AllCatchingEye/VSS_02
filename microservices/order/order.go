@@ -56,11 +56,11 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 	orderId := generateUniqueOrderID(state.orders)
 	state.orders[orderId] = order
 	// call stock to reserve products
-	res, err := callStock(state.redis, orderId)
-	if err != nil {
-		return nil, err
-	}
-	fmt.Println("Stock received request: ", res)
+	//res, err := callStock(state.redis, orderId)
+	//if err != nil {
+	//	return nil, err
+	//}
+	//fmt.Println("Stock received request: ", res)
 	state.orders[orderId] = order
 	return &orderApi.NewOrderReply{OrderId: orderId, Order: order}, nil
 }
