@@ -15,7 +15,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     customer:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/customer
@@ -25,7 +27,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     order:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/order
@@ -35,7 +39,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     payment:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/payment
@@ -45,7 +51,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     shipment:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/shipment
@@ -55,7 +63,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     stock:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/stock
@@ -65,7 +75,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     supplier:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/supplier
@@ -75,7 +87,9 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
 
     client:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/client/client
@@ -85,4 +99,6 @@ services:
         depends_on:
             - nats
             - redis
-        command: -nats nats:4222 -redis redis:6379
+        command:
+            -nats nats:4222
+            -redis redis:6379
