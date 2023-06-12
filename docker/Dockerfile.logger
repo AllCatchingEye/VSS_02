@@ -1,0 +1,11 @@
+FROM gitlab.lrz.de:5005/hm/dockerhub/golang:alpine as builder
+LABEL authors="Nicolas Lerch & Georg Lang"
+
+WORKDIR /blatt2-grp06
+COPY . .
+
+RUN go build -o /exec-logger microservices/logger/logger.go
+
+FROM gitlab.lrz.de:5005/hm/dockerhub/alpine:latest
+COPY --from=builder /exec-logger /logger
+ENTRYPOINT ["/logger"]
