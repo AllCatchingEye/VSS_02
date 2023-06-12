@@ -173,6 +173,8 @@ func main() {
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "address and port of Redis server")
 	flag.Parse()
 
+	time.Sleep(5 * time.Second)
+
 	address := fmt.Sprintf("%s:%s", *flagHost, *flagPort)
 
 	lis, err := net.Listen("tcp", address)
