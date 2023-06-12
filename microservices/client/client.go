@@ -26,6 +26,8 @@ func main() {
 	flagNATS := flag.String("nats", "127.0.0.1:4222", "customerAddress and port of NATS server")
 	flag.Parse()
 
+	time.Sleep(5 * time.Second)
+
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     *flagRedis,
 		Password: "",
