@@ -10,10 +10,10 @@ lint:
     script:
         - golangci-lint run
 
-docker-image:
+docker-images:
     image:
         name: gitlab.lrz.de:5005/hm/dockerhub/kaniko-project/executor:debug
-        entrypoint: [ "" ]
+        entrypoint: [""]
     stage: docker
     script:
         - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
@@ -36,6 +36,127 @@ docker-image:
               TYPE: "service"
             - NAME: "client"
               TYPE: "client"
+
+run-service-customer:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/customer-service-compose.yaml up -d
+
+run-service-order:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/order-service-compose.yaml up -d
+
+run-service-logger:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/logger-service-compose.yaml up -d
+
+run-service-payment:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/payment-service-compose.yaml up -d
+
+run-service-shipment:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/shipment-service-compose.yaml up -d
+
+run-service-stock:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/stock-service-compose.yaml up -d
+
+run-service-supplier:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/supplier-service-compose.yaml up -d
+
+run-client:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f path/to/client-service-compose.yaml up -d
+
 szenario:
     stage: run
     image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
