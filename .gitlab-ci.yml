@@ -34,7 +34,8 @@ docker-image:
               TYPE: "service"
             - NAME: "supplier"
               TYPE: "service"
-
+            - NAME: "client"
+              TYPE: "client"
 szenario:
     stage: run
     image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
