@@ -1,8 +1,40 @@
 stages:
     - lint
+    - test
+    - docker
+    - run
 
 lint:
-    image: gitlab.lrz.de:5005/hm/dockerhub/golangci/golangci-lint
-    stage: lint
+    image: gitlab.lrz.de:5005/hm/dockerhub/golangci/golangci-lint:latest
+    stage: test
     script:
         - golangci-lint run
+
+docker-image:
+    image:
+        name: gitlab.lrz.de:5005/hm/dockerhub/kaniko-project/executor:debug
+        entrypoint: [ "" ]
+    stage: docker
+    script:
+        - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+        - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/docker/Dockerfile.$NAME --destination $CI_REGISTRY_IMAGE/$TYPE/$NAME:$CI_COMMIT_TAG --destination $CI_REGISTRY_IMAGE/$TYPE/$NAME:latest
+    parallel:
+        matrix:
+            - NAME: "logger"
+              TYPE: "service"
+
+szenario:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose pull
+        - docker-compose up --abort-on-container-exit --exit-code-from=client
