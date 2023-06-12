@@ -14,10 +14,8 @@ services:
             context: .
         depends_on:
             - nats
-            - redis
         command:
             -nats nats:4222
-            -redis redis:6379
 
     customer:
         image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/customer
