@@ -118,7 +118,7 @@ func main() {
 	shipmentClient := services.NewShipmentServiceClient(shipmentConn)
 
 	// set context
-	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*10)
 	defer cancel()
 
 	log.Printf("Context: %v", ctx)
@@ -143,7 +143,7 @@ func main() {
 	// New Order
 	newOrder := make(map[uint32]uint32)
 	newOrder[111] = 5
-	newOrder[222] = 10
+	newOrder[222] = 11
 	rOrder, err := orderClient.NewOrder(ctx, &orderApi.NewOrderRequest{CustomerId: customerID, Products: newOrder})
 	if err != nil {
 		log.Fatalf("could not create newOrder %v: %v", newOrder, err)
@@ -347,12 +347,14 @@ func fillStore(rdb *redis.Client, nc *nats.Conn) {
 			Name:        "Laptop",
 			Description: "A laptop, very useful for working",
 			Price:       1000,
+			Amount:      10,
 			Supplier:    supplierID,
 		},
 		{
 			Name:        "Headset",
 			Description: "A headset, very useful for listening",
 			Price:       150,
+			Amount:      10,
 			Supplier:    supplierID,
 		},
 	}
@@ -362,18 +364,21 @@ func fillStore(rdb *redis.Client, nc *nats.Conn) {
 			Name:        "Adiletten",
 			Description: "Adiletten, very useful for walking",
 			Price:       20,
+			Amount:      10,
 			Supplier:    supplierID2,
 		},
 		{
 			Name:        "Jogger",
 			Description: "Jogger, very useful for running",
 			Price:       50,
+			Amount:      10,
 			Supplier:    supplierID2,
 		},
 		{
 			Name:        "T-Shirt",
 			Description: "T-Shirt, very useful for sweating",
 			Price:       10,
+			Amount:      10,
 			Supplier:    supplierID2,
 		},
 	}
@@ -384,6 +389,7 @@ func fillStore(rdb *redis.Client, nc *nats.Conn) {
 			Name:        "Apple",
 			Description: "Apple, keeps the doctor away",
 			Price:       1,
+			Amount:      10,
 			Supplier:    supplierID3,
 		},
 		{
@@ -391,6 +397,7 @@ func fillStore(rdb *redis.Client, nc *nats.Conn) {
 			Name:        "Banana",
 			Description: "Banana, very useful for monkeys",
 			Price:       2,
+			Amount:      10,
 			Supplier:    supplierID3,
 		},
 		{
@@ -398,6 +405,7 @@ func fillStore(rdb *redis.Client, nc *nats.Conn) {
 			Name:        "Orange",
 			Description: "Orange, very orange",
 			Price:       1,
+			Amount:      10,
 			Supplier:    supplierID3,
 		},
 	}
