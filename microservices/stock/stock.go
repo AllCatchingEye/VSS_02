@@ -146,6 +146,7 @@ func (state *server) OrderProducts(ctx context.Context, req *stockApi.OrderProdu
 			productsCount--
 		} else if state.products[product] != nil && state.products[product].GetAmount() < amount {
 			// Order from supplier
+			// TODO: have to be asynchronous
 			orderProductFromSupplier(state.redis, state.products[product].GetSupplier(), product, amount)
 		} else {
 			delete(orderProducts, product)

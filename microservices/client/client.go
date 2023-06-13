@@ -143,7 +143,7 @@ func main() {
 	// New Order
 	newOrder := make(map[uint32]uint32)
 	newOrder[111] = 5
-	newOrder[222] = 11
+	newOrder[222] = 10
 	rOrder, err := orderClient.NewOrder(ctx, &orderApi.NewOrderRequest{CustomerId: customerID, Products: newOrder})
 	if err != nil {
 		log.Fatalf("could not create newOrder %v: %v", newOrder, err)
