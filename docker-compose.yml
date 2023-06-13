@@ -1,9 +1,9 @@
 version: "3"
 services:
     nats:
-        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/dependency/nats
+        image: gitlab.lrz.de:5005/vss/misc/example-microservices/dependency/nats
     redis:
-        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/dependency/redis
+        image: gitlab.lrz.de:5005/vss/misc/example-microservices/dependency/redis
         environment:
             - ALLOW_EMPTY_PASSWORD=yes
 
