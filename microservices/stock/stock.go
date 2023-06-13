@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/supplierApi"
@@ -126,17 +127,39 @@ func (state *server) OrderProducts(ctx context.Context, req *stockApi.OrderProdu
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	orderId := req.GetOrderId()
-	fmt.Println(orderId)
 	err := state.nats.Publish("log.stockApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.stockApi: cannot publish event")
 	}
-	fmt.Println("OrderID: ", orderId)
-	// TODO: check if order exists and get products
-	// TODO: reserve products in stock (dekrement number)
-	// TODO: request missing products from supplier
+	orderId := req.GetOrderId()
+	fmt.Println("Received order: ", orderId)
+	orderProducts := req.GetProducts()
+	fmt.Println("Order products: ", orderProducts)
+	orderProductsStatus := req.GetProductsStatus()
+	fmt.Println("Order products status: ", orderProductsStatus)
+	productsCount := len(orderProducts)
+	for product, amount := range orderProducts {
+		if state.products[product] != nil && state.products[product].GetAmount() >= amount {
+			// reserve products in stock (dekrement number)
+			orderProductsStatus[product] = true
+			state.products[product].Amount -= amount
+			productsCount--
+		} else if state.products[product] != nil && state.products[product].GetAmount() < amount {
+			// Order from supplier
+			orderProductFromSupplier(state.redis, state.products[product].GetSupplier(), product, amount)
+		} else {
+			delete(orderProducts, product)
+			delete(orderProductsStatus, product)
+		}
+		fmt.Println("Product: ", product, "Amount: ", amount, "Status: ", orderProductsStatus[product])
+	}
 	// TODO: set order status when every product is available (asyncron)
+	if productsCount == 0 {
+		setOrderStatus(state.redis, orderId)
+	}
+	if len(orderProducts) == 0 {
+		fmt.Println("no products available")
+	}
 	return &stockApi.OrderProductsReply{}, nil
 }
 
@@ -196,4 +219,60 @@ func generateUniqueProductID(products map[uint32]*types.Product) uint32 {
 		_, exists = products[productId]
 	}
 	return productId
+}
+
+func orderProductFromSupplier(rdb *redis.Client, supplier uint32, product uint32, amount uint32) bool {
+	// order product from supplier
+	supplierAddress, err := rdb.Get(context.TODO(), "service:supplierApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the customer service address %v", err)
+	}
+	fmt.Println("supplierAddress successful.")
+	supplierConn, err := grpc.Dial(supplierAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to supplier service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to supplier service %v", err)
+		}
+	}(supplierConn)
+	fmt.Println("supplierConn successful.")
+
+	supplierClient := services.NewSupplierServiceClient(supplierConn)
+	fmt.Println("supplierClient successful.")
+	_, err = supplierClient.OrderProduct(context.Background(), &supplierApi.OrderProductRequest{SupplierId: supplier, ProductId: product, Amount: amount})
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func setOrderStatus(rdb *redis.Client, orderId uint32) bool {
+	// set order status
+	orderAddress, err := rdb.Get(context.Background(), "service:orderApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the order service address %v", err)
+	}
+	fmt.Println("orderAddress successful.")
+	orderConn, err := grpc.Dial(orderAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to order service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to order service %v", err)
+		}
+	}(orderConn)
+	fmt.Println("orderConn successful.")
+
+	orderClient := services.NewOrderServiceClient(orderConn)
+	fmt.Println("orderClient successful.")
+	_, err = orderClient.SetOrderStatus(context.Background(), &orderApi.SetOrderStatusRequest{OrderId: orderId, Status: true})
+	if err != nil {
+		return false
+	}
+	return true
 }

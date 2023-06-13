@@ -26,6 +26,7 @@ services:
             - nats
             - redis
         command:
+            -host customer
             -nats nats:4222
             -redis redis:6379
 
@@ -38,6 +39,7 @@ services:
             - nats
             - redis
         command:
+            -host order
             -nats nats:4222
             -redis redis:6379
 
@@ -50,6 +52,7 @@ services:
             - nats
             - redis
         command:
+            -host payment
             -nats nats:4222
             -redis redis:6379
 
@@ -62,6 +65,7 @@ services:
             - nats
             - redis
         command:
+            -host shipment
             -nats nats:4222
             -redis redis:6379
 
@@ -74,6 +78,7 @@ services:
             - nats
             - redis
         command:
+            -host stock
             -nats nats:4222
             -redis redis:6379
 
@@ -86,6 +91,7 @@ services:
             - nats
             - redis
         command:
+            -host supplier
             -nats nats:4222
             -redis redis:6379
 

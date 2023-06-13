@@ -17,9 +17,10 @@ message Customer {
 message Order {
     uint32 customer = 1;
     map<uint32, uint32> products = 2;
-    bool orderStatus = 3;
-    bool paymentStatus = 4;
-    types.DELIVERY_STATUS deliveryStatus = 5;
+    map<uint32, bool> productsStatus = 3;
+    bool orderStatus = 4;
+    bool paymentStatus = 5;
+    types.DELIVERY_STATUS deliveryStatus = 6;
 }
 
 message Product {
@@ -27,7 +28,8 @@ message Product {
     string name = 2;
     string description = 3;
     double price = 4;
-    uint32 supplier = 5;
+    uint32 amount = 5;
+    uint32 supplier = 6;
 }
 
 message Supplier {

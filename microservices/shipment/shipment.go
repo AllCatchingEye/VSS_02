@@ -196,6 +196,10 @@ func checkOrderID(redis *redis.Client, orderID uint32, customerID uint32) (uint3
 	res, err := orderClient.GetOrder(context.Background(), &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
 	if err != nil {
 		return 0, fmt.Errorf("order with ID %v does not exist: %v", orderID, err)
+	} else if !res.GetOrder().GetOrderStatus() {
+		return 0, fmt.Errorf("order with ID %v is not finished yet, no delivery", orderID)
+	} else if !res.GetOrder().GetPaymentStatus() {
+		return 0, fmt.Errorf("order with ID %v is not paid yet, no delivery", orderID)
 	}
 	return res.GetOrderId(), nil
 }
