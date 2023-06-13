@@ -243,10 +243,7 @@ func orderProductFromSupplier(rdb *redis.Client, supplier uint32, product uint32
 	supplierClient := services.NewSupplierServiceClient(supplierConn)
 	fmt.Println("supplierClient successful.")
 	_, err = supplierClient.OrderProduct(context.Background(), &supplierApi.OrderProductRequest{SupplierId: supplier, ProductId: product, Amount: amount})
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
 
 func setOrderStatus(rdb *redis.Client, orderId uint32) bool {
@@ -271,8 +268,5 @@ func setOrderStatus(rdb *redis.Client, orderId uint32) bool {
 	orderClient := services.NewOrderServiceClient(orderConn)
 	fmt.Println("orderClient successful.")
 	_, err = orderClient.SetOrderStatus(context.Background(), &orderApi.SetOrderStatusRequest{OrderId: orderId, Status: true})
-	if err != nil {
-		return false
-	}
-	return true
+	return err == nil
 }
