@@ -36,10 +36,6 @@ docker-image:
               TYPE: "service"
             - NAME: "client"
               TYPE: "client"
-            - NAME: "redis"
-              TYPE: "dependency"
-            - NAME: "nats"
-              TYPE: "dependency"
 szenario:
     stage: run
     image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
