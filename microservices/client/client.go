@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/scenarios"
@@ -31,6 +32,9 @@ func main() {
 	defer nc.Close()
 
 	// run scenario1
+	fmt.Println("##########################################")
+	fmt.Println("########## Running Scenario 1 ############")
+	fmt.Println("##########################################")
 	scene1 := scenarios.Scene1(rdb, nc)
 	if scene1 {
 		log.Println("Scenario 1 successful")
@@ -38,6 +42,9 @@ func main() {
 		log.Println("Scenario 1 failed")
 	}
 	// run scenario2
+	fmt.Println("##########################################")
+	fmt.Println("########## Running Scenario 2 ############")
+	fmt.Println("##########################################")
 	scene2 := scenarios.Scene2(rdb, nc)
 	if scene2 {
 		log.Println("Scenario 2 successful")
@@ -45,6 +52,9 @@ func main() {
 		log.Println("Scenario 2 failed")
 	}
 	// run scenario3
+	fmt.Println("##########################################")
+	fmt.Println("########## Running Scenario 3 ############")
+	fmt.Println("##########################################")
 	scene3 := scenarios.Scene3(rdb, nc)
 	if scene3 {
 		log.Println("Scenario 3 successful")
@@ -52,6 +62,9 @@ func main() {
 		log.Println("Scenario 3 failed")
 	}
 	// run scenario4
+	fmt.Println("##########################################")
+	fmt.Println("########## Running Scenario 4 ############")
+	fmt.Println("##########################################")
 	scene4 := scenarios.Scene4(rdb, nc)
 	if scene4 {
 		log.Println("Scenario 4 successful")
@@ -59,6 +72,9 @@ func main() {
 		log.Println("Scenario 4 failed")
 	}
 	// run scenario5
+	fmt.Println("##########################################")
+	fmt.Println("########## Running Scenario 5 ############")
+	fmt.Println("##########################################")
 	scene5 := scenarios.Scene5(rdb, nc)
 	if scene5 {
 		log.Println("Scenario 5 successful")

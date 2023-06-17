@@ -159,19 +159,28 @@ func Scene2(rdb *redis.Client, nc *nats.Conn) bool {
 	log.Printf("Order %v is payed: %v", orderID, rPayment2.GetIsPayed())
 
 	// Get Order
-	rOrder2, err := orderClient.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
-	if err != nil {
-		log.Fatalf("could not get order %v: %v", orderID, err)
-	}
-	log.Printf("Getting order: %v", rOrder2.GetOrder())
-	order = rOrder2.GetOrder()
-	log.Printf("Order: %v", order)
-	orderID = rOrder2.GetOrderId()
-	log.Printf("OrderID: %v", orderID)
+	tmp := true
+	var rOrder2 *orderApi.GetOrderReply
+	for tmp {
+		rOrder2, err = orderClient.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
+		if err != nil {
+			log.Fatalf("could not get order %v: %v", orderID, err)
+		}
+		log.Printf("Getting order: %v", rOrder2.GetOrder())
+		order = rOrder2.GetOrder()
+		log.Printf("Order: %v", order)
+		orderID = rOrder2.GetOrderId()
+		log.Printf("OrderID: %v", orderID)
 
-	log.Printf("Orderstatus: %v", order.GetOrderStatus())
-	log.Printf("Paymentstatus: %v", order.GetPaymentStatus())
-	log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
+		log.Printf("Orderstatus: %v", order.GetOrderStatus())
+		log.Printf("Paymentstatus: %v", order.GetPaymentStatus())
+		log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
+
+		tmp = order.GetOrderStatus()
+
+		log.Printf("Waiting for order (sleeping 2s)")
+		time.Sleep(2 * time.Second)
+	}
 
 	// Set Delivery Status
 	rShipment, err := shipmentClient.ShipMyOrder(ctx, &shipmentApi.ShipMyOrderRequest{CustomerId: customerID, OrderId: orderID})
@@ -213,7 +222,7 @@ func fillStore2(rdb *redis.Client, nc *nats.Conn) {
 
 	// subscribe to nats logging
 
-	fmt.Println("we have nats: ", nc)
+	fmt.Println("we have nats: ", nc.Opts.Name)
 	//subscription, err := nc.Subscribe("log.*", func(msg *nats.Msg) {
 	//	fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
 	//})

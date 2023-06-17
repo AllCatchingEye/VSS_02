@@ -197,9 +197,7 @@ func main() {
 		supplierID, _ := strconv.ParseUint(supplier, 10, 32)
 		productID, _ := strconv.ParseUint(product, 10, 32)
 		amountUint, _ := strconv.ParseUint(amount, 10, 32)
-		// sleep between 1 and 5 seconds
-		sleepDuration := rand.Intn(5-1+1) + 1
-		time.Sleep(time.Duration(sleepDuration) * time.Second)
+		time.Sleep(3 * time.Second)
 		sendOrderedProductsToStockApi(nc, uint32(supplierID), uint32(productID), uint32(amountUint))
 	})
 	if err != nil {
