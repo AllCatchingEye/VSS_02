@@ -3,6 +3,7 @@ package main
 import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/scenarios"
 	"log"
+	"os"
 	"time"
 )
 
@@ -44,4 +45,5 @@ func main() {
 		log.Println("Scenario 5 failed")
 	}
 
+	os.Exit(0)
 }
