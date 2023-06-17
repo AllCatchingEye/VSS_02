@@ -220,11 +220,8 @@ func main() {
 		product := message[1]
 		amount := message[2]
 		fmt.Printf("supplier: %s, product: %s, amount: %s\n", supplier, product, amount)
-		productID, err := strconv.ParseUint(product, 10, 32)
-		amountUint, err := strconv.ParseUint(amount, 10, 32)
-		if err != nil {
-			log.Fatal("cannot parse string to uint")
-		}
+		productID, _ := strconv.ParseUint(product, 10, 32)
+		amountUint, _ := strconv.ParseUint(amount, 10, 32)
 		server.products[uint32(productID)].Amount += uint32(amountUint)
 		// für alle offenen Bestellungen prüfen, ob jetzt genug Produkte vorhanden sind
 		for orderID, orderProducts := range server.orders {
@@ -270,7 +267,7 @@ func main() {
 		}
 
 		// Get Order
-		orderRes, err := getOrder(rdb, uint32(orderID))
+		orderRes, _ := getOrder(rdb, uint32(orderID))
 		fmt.Println("Getting Order successful")
 		// Reserve Products
 		products := orderRes.GetProducts()
