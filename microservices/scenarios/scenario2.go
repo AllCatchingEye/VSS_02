@@ -176,7 +176,7 @@ func Scene2(rdb *redis.Client, nc *nats.Conn) bool {
 		log.Printf("Paymentstatus: %v", order.GetPaymentStatus())
 		log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
 
-		tmp = order.GetOrderStatus()
+		tmp = !order.GetOrderStatus()
 
 		log.Printf("Waiting for order (sleeping 2s)")
 		time.Sleep(2 * time.Second)
@@ -222,7 +222,7 @@ func fillStore2(rdb *redis.Client, nc *nats.Conn) {
 
 	// subscribe to nats logging
 
-	fmt.Println("we have nats: ", nc.Opts.Name)
+	fmt.Println("we have nats: ", nc.IsConnected())
 	//subscription, err := nc.Subscribe("log.*", func(msg *nats.Msg) {
 	//	fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
 	//})
@@ -258,6 +258,7 @@ func fillStore2(rdb *redis.Client, nc *nats.Conn) {
 	}(supplierConn)
 
 	supplierClient := services.NewSupplierServiceClient(supplierConn)
+	fmt.Println("connected to supplier service")
 
 	suppliers := map[uint32]*types.Supplier{
 		1: {

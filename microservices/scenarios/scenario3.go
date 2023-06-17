@@ -8,7 +8,7 @@ import (
 
 func Scene3(rdb *redis.Client, nc *nats.Conn) bool {
 	// TODO implement
-	fmt.Println("having nats ", nc)
+	fmt.Println("having nats ", nc.IsConnected())
 	fmt.Println("having redis ", rdb)
 	return true
 }
