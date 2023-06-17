@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	fmt.Println("starting client")
 	time.Sleep(10 * time.Second)
 
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "customerAddress and port of Redis server")
