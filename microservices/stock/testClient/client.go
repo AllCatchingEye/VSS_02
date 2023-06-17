@@ -51,9 +51,11 @@ func main() {
 		Supplier:    1,
 	}
 	product2 := &types.Product{
-		Name:        "Banana",
-		Description: "A yellow and sweet banana",
+		ProductId:   uint32(222),
+		Name:        "Orange",
+		Description: "Eine orangene Orange",
 		Price:       0.99,
+		Amount:      10,
 		Supplier:    1,
 	}
 	product3 := &types.Product{
@@ -89,5 +91,4 @@ func main() {
 		log.Fatalf("could not remove product: %v", err)
 	}
 	log.Printf("Removed: %s", r3.GetProduct().GetName())
-
 }

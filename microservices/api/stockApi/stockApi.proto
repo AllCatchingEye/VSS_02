@@ -31,11 +31,9 @@ message RemoveProductReply {
 message OrderProductsRequest {
     uint32 orderId = 1;
     map<uint32, uint32> products = 2;
-    map<uint32, bool> productsStatus = 3;
 }
 
 message OrderProductsReply {
-    uint32 orderId = 1;
-    bool requestSuccessful = 2;
+    bool received = 1;
 }
 

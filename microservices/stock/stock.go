@@ -17,6 +17,9 @@ import (
 	"math/rand"
 	"net"
 	"reflect"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -25,6 +28,7 @@ type server struct {
 	redis    *redis.Client
 	nats     *nats.Conn
 	products map[uint32]*types.Product
+	orders   map[uint32]map[uint32]uint32
 }
 
 func (state *server) AddProducts(ctx context.Context, req *stockApi.AddProductsRequest) (*stockApi.AddProductsReply, error) {
@@ -135,33 +139,40 @@ func (state *server) OrderProducts(ctx context.Context, req *stockApi.OrderProdu
 	fmt.Println("Received order: ", orderId)
 	orderProducts := req.GetProducts()
 	fmt.Println("Order products: ", orderProducts)
-	orderProductsStatus := req.GetProductsStatus()
-	fmt.Println("Order products status: ", orderProductsStatus)
 	productsCount := len(orderProducts)
+	state.orders[orderId] = orderProducts
+
 	for product, amount := range orderProducts {
+		fmt.Println("Handle product ", product, " with amount ", amount, " in order ", orderId, ".")
 		if state.products[product] != nil && state.products[product].GetAmount() >= amount {
 			// reserve products in stock (dekrement number)
-			orderProductsStatus[product] = true
+			fmt.Println("Reserve product ", product)
+			state.orders[orderId][product] = 0
 			state.products[product].Amount -= amount
 			productsCount--
 		} else if state.products[product] != nil && state.products[product].GetAmount() < amount {
 			// Order from supplier
-			// TODO: have to be asynchronous
-			orderProductFromSupplier(state.redis, state.products[product].GetSupplier(), product, amount)
+			fmt.Println("Order product ", product, " from supplier ", state.products[product].GetSupplier())
+			err = state.nats.Publish("supp.orderProduct", []byte(fmt.Sprintf("order %v %v %v", state.products[product].GetSupplier(), product, amount-state.products[product].GetAmount()+2*state.products[product].GetAmount())))
+			if err != nil {
+				log.Print("supp.orderProduct: cannot publish event")
+			}
 		} else {
+			fmt.Println("Product ", product, " not found")
 			delete(orderProducts, product)
-			delete(orderProductsStatus, product)
+			delete(state.orders[orderId], product)
 		}
-		fmt.Println("Product: ", product, "Amount: ", amount, "Status: ", orderProductsStatus[product])
 	}
-	// TODO: set order status when every product is available (asyncron)
 	if productsCount == 0 {
+		// set order status
+		fmt.Println("Order ", orderId, " is complete")
 		setOrderStatus(state.redis, orderId)
 	}
+
 	if len(orderProducts) == 0 {
 		fmt.Println("no products available")
 	}
-	return &stockApi.OrderProductsReply{}, nil
+	return &stockApi.OrderProductsReply{Received: true}, nil
 }
 
 func main() {
@@ -200,12 +211,95 @@ func main() {
 	}
 	defer nc.Close()
 
-	services.RegisterStockServiceServer(s, &server{redis: rdb, nats: nc, products: make(map[uint32]*types.Product)})
+	server := &server{redis: rdb, nats: nc, products: make(map[uint32]*types.Product), orders: make(map[uint32]map[uint32]uint32)}
+
+	subscription, err := nc.Subscribe("supp.deliverProduct", func(msg *nats.Msg) {
+		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
+		message := strings.Split(string(msg.Data), " ")
+		supplier := message[0]
+		product := message[1]
+		amount := message[2]
+		fmt.Printf("supplier: %s, product: %s, amount: %s\n", supplier, product, amount)
+		productID, err := strconv.ParseUint(product, 10, 32)
+		amountUint, err := strconv.ParseUint(amount, 10, 32)
+		if err != nil {
+			log.Fatal("cannot parse string to uint")
+		}
+		server.products[uint32(productID)].Amount += uint32(amountUint)
+		// für alle offenen Bestellungen prüfen, ob jetzt genug Produkte vorhanden sind
+		for orderID, orderProducts := range server.orders {
+			fmt.Println("Check order ", orderID)
+			productsCount := len(orderProducts)
+			for product, amount := range orderProducts {
+				fmt.Println("Handle product ", product, " with amount ", amount, " in order ", orderID, ".")
+				if server.products[product] != nil && server.products[product].GetAmount() >= amount {
+					// reserve products in stock (dekrement number)
+					fmt.Println("Reserve product ", product)
+					server.orders[orderID][product] = 0
+					server.products[product].Amount -= amount
+					productsCount--
+				}
+			}
+			if productsCount == 0 {
+				// set order status
+				fmt.Println("Order ", orderID, " is complete")
+				setOrderStatus(server.redis, orderID)
+			}
+		}
+	})
+	if err != nil {
+		log.Fatal("cannot subscribe")
+	}
+	defer func(subscription *nats.Subscription) {
+		err := subscription.Unsubscribe()
+		if err != nil {
+			log.Fatal("cannot unsubscribe")
+		}
+	}(subscription) //nolint
+
+	var wc sync.WaitGroup
+	wc.Add(1)
+
+	subscription2, err := nc.Subscribe("sto.order", func(msg *nats.Msg) {
+		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
+		message := strings.Split(string(msg.Data), " ")
+		orderIDString := message[1]
+		orderID, err := strconv.ParseUint(orderIDString, 10, 32)
+		if err != nil {
+			log.Fatal("cannot parse string to uint")
+		}
+
+		// Get Order
+		orderRes, err := getOrder(rdb, uint32(orderID))
+		fmt.Println("Getting Order successful")
+		// Reserve Products
+		products := orderRes.GetProducts()
+		fmt.Println("STOCK products: ", products)
+		_, err = server.OrderProducts(context.Background(), &stockApi.OrderProductsRequest{OrderId: uint32(orderID), Products: products})
+		if err != nil {
+			log.Fatal("cannot reserve products")
+		}
+	})
+	if err != nil {
+		log.Fatal("cannot subscribe")
+	}
+	defer func(subscription2 *nats.Subscription) {
+		err := subscription2.Unsubscribe()
+		if err != nil {
+			log.Fatal("cannot unsubscribe")
+		}
+	}(subscription2) //nolint
+
+	wc.Add(2)
+
+	services.RegisterStockServiceServer(s, server)
 	fmt.Println("creating stockApi service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
+	wc.Wait()
 }
 
 // Helper
@@ -222,29 +316,32 @@ func generateUniqueProductID(products map[uint32]*types.Product) uint32 {
 	return productId
 }
 
-func orderProductFromSupplier(rdb *redis.Client, supplier uint32, product uint32, amount uint32) bool {
-	// order product from supplier
-	supplierAddress, err := rdb.Get(context.TODO(), "service:supplierApi").Result()
+func getOrder(rdb *redis.Client, orderID uint32) (*types.Order, error) {
+	// get orderRes
+	orderAddress, err := rdb.Get(context.Background(), "service:orderApi").Result()
 	if err != nil {
-		log.Fatalf("error while trying to get the customer service address %v", err)
+		log.Fatalf("error while trying to get the orderRes service address %v", err)
 	}
-	fmt.Println("supplierAddress successful.")
-	supplierConn, err := grpc.Dial(supplierAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	fmt.Println("orderAddress successful.")
+	orderConn, err := grpc.Dial(orderAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
 	if err != nil {
-		log.Fatalf("did not connect to supplier service: %v", err)
+		log.Fatalf("did not connect to orderRes service: %v", err)
 	}
 	defer func(conn *grpc.ClientConn) {
 		err := conn.Close()
 		if err != nil {
-			log.Fatalf("error while closing the connection to supplier service %v", err)
+			log.Fatalf("error while closing the connection to orderRes service %v", err)
 		}
-	}(supplierConn)
-	fmt.Println("supplierConn successful.")
+	}(orderConn)
+	fmt.Println("orderConn successful.")
 
-	supplierClient := services.NewSupplierServiceClient(supplierConn)
-	fmt.Println("supplierClient successful.")
-	_, err = supplierClient.OrderProduct(context.Background(), &supplierApi.OrderProductRequest{SupplierId: supplier, ProductId: product, Amount: amount})
-	return err == nil
+	orderClient := services.NewOrderServiceClient(orderConn)
+	fmt.Println("orderClient successful.")
+	orderRes, err := orderClient.GetOrder(context.Background(), &orderApi.GetOrderRequest{CustomerId: 0, OrderId: orderID})
+	if err != nil {
+		return nil, fmt.Errorf("error while trying to get orderRes %v", err)
+	}
+	return orderRes.GetOrder(), nil
 }
 
 func setOrderStatus(rdb *redis.Client, orderId uint32) bool {

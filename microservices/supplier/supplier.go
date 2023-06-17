@@ -14,6 +14,9 @@ import (
 	"math/rand"
 	"net"
 	"reflect"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -132,6 +135,9 @@ func (state *server) RemoveProducts(ctx context.Context, req *supplierApi.Remove
 	return &supplierApi.RemoveProductsReply{Supplier: supplier}, nil
 }
 
+/**
+ * OrderProduct deprecated
+ */
 func (state *server) OrderProduct(ctx context.Context, req *supplierApi.OrderProductRequest) (*supplierApi.OrderProductReply, error) {
 	fmt.Println("OrderProduct called")
 	deadline, ok := ctx.Deadline()
@@ -175,6 +181,44 @@ func main() {
 
 	time.Sleep(5 * time.Second)
 
+	nc, err := nats.Connect(*flagNATS)
+	if err != nil {
+		log.Fatal("cannot connect to nats")
+	}
+	defer nc.Close()
+
+	subscription, err := nc.Subscribe("supp.orderProduct", func(msg *nats.Msg) {
+		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
+		message := strings.Split(string(msg.Data), " ")
+		supplier := message[1]
+		product := message[2]
+		amount := message[3]
+		fmt.Printf("supplier: %s, product: %s, amount: %s\n", supplier, product, amount)
+		supplierID, err := strconv.ParseUint(supplier, 10, 32)
+		productID, err := strconv.ParseUint(product, 10, 32)
+		amountUint, err := strconv.ParseUint(amount, 10, 32)
+		if err != nil {
+			log.Fatal("cannot parse string to uint")
+		}
+		// sleep between 1 and 5 seconds
+		rand.Seed(time.Now().UnixNano())
+		sleepDuration := rand.Intn(5-1+1) + 1
+		time.Sleep(time.Duration(sleepDuration) * time.Second)
+		sendOrderedProductsToStockApi(nc, uint32(supplierID), uint32(productID), uint32(amountUint))
+	})
+	if err != nil {
+		log.Fatal("cannot subscribe")
+	}
+	defer func(subscription *nats.Subscription) {
+		err := subscription.Unsubscribe()
+		if err != nil {
+			log.Fatal("cannot unsubscribe")
+		}
+	}(subscription) //nolint
+
+	var wc sync.WaitGroup
+	wc.Add(1)
+
 	address := fmt.Sprintf("%s:%s", *flagHost, *flagPort)
 
 	lis, err := net.Listen("tcp", address)
@@ -196,18 +240,14 @@ func main() {
 		}
 	}()
 
-	nc, err := nats.Connect(*flagNATS)
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer nc.Close()
-
 	services.RegisterSupplierServiceServer(s, &server{redis: rdb, nats: nc, supplier: make(map[uint32]*types.Supplier)})
 	fmt.Println("creating supplierApi service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
+	wc.Wait()
 }
 
 // Helper
@@ -222,4 +262,11 @@ func generateUniqueSupplierID(supplier map[uint32]*types.Supplier) uint32 {
 		_, exists = supplier[supplierId]
 	}
 	return supplierId
+}
+
+func sendOrderedProductsToStockApi(nc *nats.Conn, supplierId uint32, product uint32, amount uint32) {
+	err := nc.Publish("supp.deliverProduct", []byte(fmt.Sprintf("%d %d %d", supplierId, product, amount)))
+	if err != nil {
+		log.Fatal("cannot publish message to subject supp.deliverProduct")
+	}
 }

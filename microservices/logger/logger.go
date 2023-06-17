@@ -37,5 +37,20 @@ func main() {
 
 	var wc sync.WaitGroup
 	wc.Add(1)
+
+	subscription2, err := nc.Subscribe("supp.*", func(msg *nats.Msg) {
+		fmt.Printf("SUP: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
+	})
+	if err != nil {
+		log.Fatal("cannot subscribe")
+	}
+	defer func(subscription2 *nats.Subscription) {
+		err := subscription2.Unsubscribe()
+		if err != nil {
+			log.Fatal("cannot unsubscribe")
+		}
+	}(subscription2) //nolint
+
+	wc.Add(2)
 	wc.Wait()
 }

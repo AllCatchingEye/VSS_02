@@ -9,7 +9,6 @@ import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
-	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -39,11 +38,13 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 		log.Print("log.orderApi: cannot publish event")
 	}
 	// Check if customer exists
-	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
-	if err != nil {
-		return nil, err
+	if req.GetCustomerId() != 0 {
+		customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("Could get customer: ", customer.GetName())
 	}
-	fmt.Println("Could get customer: ", customer.GetName())
 
 	// Create new order
 	productsStatus := make(map[uint32]bool)
@@ -61,11 +62,12 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 	orderId := generateUniqueOrderID(state.orders)
 	state.orders[orderId] = order
 	// call stock to reserve products
-	res, err := callStock(state.redis, orderId, order.GetProducts(), productsStatus)
+	err = state.nats.Publish("sto.order", []byte(fmt.Sprintf("orderId %v", orderId)))
+	//res, err := callStock(state.redis, orderId, order.GetProducts(), productsStatus)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("Stock received request: ", res)
+	//fmt.Println("Stock received request: ", res)
 	state.orders[orderId] = order
 	return &orderApi.NewOrderReply{OrderId: orderId, Order: order}, nil
 }
@@ -82,18 +84,21 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 		log.Print("log.orderApi: cannot publish event")
 	}
 	// Check if customer exists
-	fmt.Println("checking customerID: ", req.GetCustomerId())
-	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
-	if err != nil {
-		return nil, err
+	if req.GetCustomerId() != 0 {
+		fmt.Println("checking customerID: ", req.GetCustomerId())
+		customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("Could get customer: ", customer.GetName())
 	}
-	fmt.Println("Could get customer: ", customer.GetName())
 
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
 		return nil, fmt.Errorf("orderApi not found")
 	}
+	fmt.Println("ORDER: products: ", order.GetProducts())
 	return &orderApi.GetOrderReply{OrderId: orderID, Order: order}, nil
 }
 
@@ -241,33 +246,4 @@ func checkCustomerID(redis *redis.Client, customerID uint32) (*types.Customer, e
 		return nil, fmt.Errorf("customer with ID %v does not exist: %v", customerID, err)
 	}
 	return res.GetCustomer(), nil
-}
-
-func callStock(client *redis.Client, orderId uint32, products map[uint32]uint32, productsStatus map[uint32]bool) (bool, error) {
-	// Check if stock exists
-	stockAddress, err := client.Get(context.Background(), "service:stockApi").Result()
-	if err != nil {
-		log.Fatalf("error while trying to get the stock service address %v", err)
-	}
-	fmt.Println("stockAddress successful.")
-	stockConn, err := grpc.Dial(stockAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
-	if err != nil {
-		log.Fatalf("did not connect to stock service: %v", err)
-	}
-	defer func(conn *grpc.ClientConn) {
-		err := conn.Close()
-		if err != nil {
-			log.Fatalf("error while closing the connection to stock service %v", err)
-		}
-	}(stockConn)
-	fmt.Println("stockConn successful.")
-
-	stockClient := services.NewStockServiceClient(stockConn)
-	fmt.Println("stockClient successful.")
-	// send order to stock service
-	res, err := stockClient.OrderProducts(context.Background(), &stockApi.OrderProductsRequest{OrderId: orderId, Products: products, ProductsStatus: productsStatus})
-	if err != nil {
-		return false, fmt.Errorf("stock service could not process order %v: %v", orderId, err)
-	}
-	return res.GetRequestSuccessful(), nil
 }
