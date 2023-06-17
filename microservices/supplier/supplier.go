@@ -201,7 +201,6 @@ func main() {
 			log.Fatal("cannot parse string to uint")
 		}
 		// sleep between 1 and 5 seconds
-		rand.Seed(time.Now().UnixNano())
 		sleepDuration := rand.Intn(5-1+1) + 1
 		time.Sleep(time.Duration(sleepDuration) * time.Second)
 		sendOrderedProductsToStockApi(nc, uint32(supplierID), uint32(productID), uint32(amountUint))
