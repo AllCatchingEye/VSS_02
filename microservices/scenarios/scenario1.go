@@ -2,7 +2,6 @@ package scenarios
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"github.com/nats-io/nats.go"
 	"github.com/redis/go-redis/v9"
@@ -20,23 +19,7 @@ import (
 	"time"
 )
 
-func Scene1() bool {
-	flagRedis := flag.String("redis", "127.0.0.1:6379", "customerAddress and port of Redis server")
-	flagNATS := flag.String("nats", "127.0.0.1:4222", "customerAddress and port of NATS server")
-	flag.Parse()
-
-	time.Sleep(5 * time.Second)
-
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     *flagRedis,
-		Password: "",
-	})
-
-	nc, err := nats.Connect(*flagNATS)
-	if err != nil {
-		log.Fatal("cannot connect to nats")
-	}
-	defer nc.Close()
+func Scene1(rdb *redis.Client, nc *nats.Conn) bool {
 
 	fillStore1(rdb, nc)
 

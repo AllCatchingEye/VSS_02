@@ -1,6 +1,14 @@
 package scenarios
 
-func Scene4() bool {
+import (
+	"fmt"
+	"github.com/nats-io/nats.go"
+	"github.com/redis/go-redis/v9"
+)
+
+func Scene4(rdb *redis.Client, nc *nats.Conn) bool {
 	// TODO implement
+	fmt.Println("having nats ", nc)
+	fmt.Println("having redis ", rdb)
 	return true
 }
