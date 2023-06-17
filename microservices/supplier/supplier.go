@@ -194,12 +194,9 @@ func main() {
 		product := message[2]
 		amount := message[3]
 		fmt.Printf("supplier: %s, product: %s, amount: %s\n", supplier, product, amount)
-		supplierID, err := strconv.ParseUint(supplier, 10, 32)
-		productID, err := strconv.ParseUint(product, 10, 32)
-		amountUint, err := strconv.ParseUint(amount, 10, 32)
-		if err != nil {
-			log.Fatal("cannot parse string to uint")
-		}
+		supplierID, _ := strconv.ParseUint(supplier, 10, 32)
+		productID, _ := strconv.ParseUint(product, 10, 32)
+		amountUint, _ := strconv.ParseUint(amount, 10, 32)
 		// sleep between 1 and 5 seconds
 		sleepDuration := rand.Intn(5-1+1) + 1
 		time.Sleep(time.Duration(sleepDuration) * time.Second)
