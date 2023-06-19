@@ -50,8 +50,9 @@ szenario1:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose build --build-arg SCENARIO=1
-        - docker-compose up --abort-on-container-exit --exit-code-from=client
+        - docker-compose build
+        - docker-compose up --abort-on-container-exit --exit-code-from=client -e SCENARIO=1
+
 
 
 szenario2:
@@ -67,8 +68,8 @@ szenario2:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose build --build-arg SCENARIO=2
-        - docker-compose up --abort-on-container-exit --exit-code-from=client
+        - docker-compose build
+        - docker-compose up --abort-on-container-exit --exit-code-from=client -e SCENARIO=2
 
 szenario3:
     stage: run
@@ -83,5 +84,5 @@ szenario3:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose build --build-arg SCENARIO=3
-        - docker-compose up --abort-on-container-exit --exit-code-from=client
+        - docker-compose build
+        - docker-compose up --abort-on-container-exit --exit-code-from=client -e SCENARIO=3
