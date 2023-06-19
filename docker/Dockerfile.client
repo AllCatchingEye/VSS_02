@@ -1,6 +1,10 @@
 FROM gitlab.lrz.de:5005/hm/dockerhub/golang:alpine as builder
 LABEL authors="Nicolas Lerch & Georg Lang"
 
+ARG SCENARIO
+
+ENV SCENARIO
+
 WORKDIR /blatt2-grp06
 COPY . .
 

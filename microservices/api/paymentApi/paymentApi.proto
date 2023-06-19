@@ -20,3 +20,12 @@ message IsOrderPayedRequest {
 message IsOrderPayedReply {
     bool isPayed = 1;
 }
+
+message RefundMyOrderRequest {
+    uint32 customerId = 1;
+    uint32 orderId = 2;
+}
+
+message RefundMyOrderReply {
+    bool refundSuccess = 1;
+}

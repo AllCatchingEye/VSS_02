@@ -65,7 +65,7 @@ var file_microservices_api_services_services_proto_rawDesc = []byte{
 	0x41, 0x70, 0x69, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d,
 	0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x63, 0x75, 0x73, 0x74,
 	0x6f, 0x6d, 0x65, 0x72, 0x41, 0x70, 0x69, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x43, 0x75,
-	0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x32, 0x9d, 0x03,
+	0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x32, 0xe8, 0x03,
 	0x0a, 0x0c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x40,
 	0x0a, 0x08, 0x4e, 0x65, 0x77, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x19, 0x2e, 0x6f, 0x72, 0x64,
 	0x65, 0x72, 0x41, 0x70, 0x69, 0x2e, 0x4e, 0x65, 0x77, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65,
@@ -91,18 +91,28 @@ var file_microservices_api_services_services_proto_rawDesc = []byte{
 	0x2e, 0x53, 0x65, 0x74, 0x44, 0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x79, 0x53, 0x74, 0x61, 0x74,
 	0x75, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x20, 0x2e, 0x6f, 0x72, 0x64, 0x65,
 	0x72, 0x41, 0x70, 0x69, 0x2e, 0x53, 0x65, 0x74, 0x44, 0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x79,
-	0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x32, 0xae, 0x01,
-	0x0a, 0x0e, 0x50, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
-	0x12, 0x4a, 0x0a, 0x0a, 0x50, 0x61, 0x79, 0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x1d,
-	0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x50, 0x61, 0x79, 0x4d,
-	0x79, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e,
-	0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x50, 0x61, 0x79, 0x4d, 0x79,
-	0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x50, 0x0a, 0x0c,
-	0x49, 0x73, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x50, 0x61, 0x79, 0x65, 0x64, 0x12, 0x1f, 0x2e, 0x70,
-	0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x49, 0x73, 0x4f, 0x72, 0x64, 0x65,
-	0x72, 0x50, 0x61, 0x79, 0x65, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e,
-	0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x49, 0x73, 0x4f, 0x72, 0x64,
-	0x65, 0x72, 0x50, 0x61, 0x79, 0x65, 0x64, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x32, 0xbc,
+	0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x49, 0x0a,
+	0x0b, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x1c, 0x2e, 0x6f,
+	0x72, 0x64, 0x65, 0x72, 0x41, 0x70, 0x69, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x4f, 0x72,
+	0x64, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1a, 0x2e, 0x6f, 0x72, 0x64,
+	0x65, 0x72, 0x41, 0x70, 0x69, 0x2e, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x4f, 0x72, 0x64, 0x65,
+	0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x32, 0x83, 0x02, 0x0a, 0x0e, 0x50, 0x61, 0x79,
+	0x6d, 0x65, 0x6e, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x4a, 0x0a, 0x0a, 0x50,
+	0x61, 0x79, 0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x1d, 0x2e, 0x70, 0x61, 0x79, 0x6d,
+	0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x50, 0x61, 0x79, 0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65,
+	0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65,
+	0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x50, 0x61, 0x79, 0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65, 0x72,
+	0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x50, 0x0a, 0x0c, 0x49, 0x73, 0x4f, 0x72, 0x64,
+	0x65, 0x72, 0x50, 0x61, 0x79, 0x65, 0x64, 0x12, 0x1f, 0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65, 0x6e,
+	0x74, 0x41, 0x70, 0x69, 0x2e, 0x49, 0x73, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x50, 0x61, 0x79, 0x65,
+	0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1d, 0x2e, 0x70, 0x61, 0x79, 0x6d, 0x65,
+	0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x49, 0x73, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x50, 0x61, 0x79,
+	0x65, 0x64, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x12, 0x53, 0x0a, 0x0d, 0x52, 0x65, 0x66,
+	0x75, 0x6e, 0x64, 0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x20, 0x2e, 0x70, 0x61, 0x79,
+	0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x52, 0x65, 0x66, 0x75, 0x6e, 0x64, 0x4d, 0x79,
+	0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1e, 0x2e, 0x70,
+	0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e, 0x52, 0x65, 0x66, 0x75, 0x6e, 0x64,
+	0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x22, 0x00, 0x32, 0xbc,
 	0x01, 0x0a, 0x0f, 0x53, 0x68, 0x69, 0x70, 0x6d, 0x65, 0x6e, 0x74, 0x53, 0x65, 0x72, 0x76, 0x69,
 	0x63, 0x65, 0x12, 0x4f, 0x0a, 0x0b, 0x53, 0x68, 0x69, 0x70, 0x4d, 0x79, 0x4f, 0x72, 0x64, 0x65,
 	0x72, 0x12, 0x1f, 0x2e, 0x73, 0x68, 0x69, 0x70, 0x6d, 0x65, 0x6e, 0x74, 0x41, 0x70, 0x69, 0x2e,
@@ -186,42 +196,46 @@ var file_microservices_api_services_services_proto_goTypes = []interface{}{
 	(*orderApi.SetOrderStatusRequest)(nil),    // 5: orderApi.SetOrderStatusRequest
 	(*orderApi.SetPaymentStatusRequest)(nil),  // 6: orderApi.SetPaymentStatusRequest
 	(*orderApi.SetDeliveryStatusRequest)(nil), // 7: orderApi.SetDeliveryStatusRequest
-	(*paymentApi.PayMyOrderRequest)(nil),      // 8: paymentApi.PayMyOrderRequest
-	(*paymentApi.IsOrderPayedRequest)(nil),    // 9: paymentApi.IsOrderPayedRequest
-	(*shipmentApi.ShipMyOrderRequest)(nil),    // 10: shipmentApi.ShipMyOrderRequest
-	(*shipmentApi.IsOrderShippedRequest)(nil), // 11: shipmentApi.IsOrderShippedRequest
-	(*stockApi.AddProductsRequest)(nil),       // 12: stockApi.AddProductsRequest
-	(*stockApi.GetProductsRequest)(nil),       // 13: stockApi.GetProductsRequest
-	(*stockApi.RemoveProductRequest)(nil),     // 14: stockApi.RemoveProductRequest
-	(*stockApi.OrderProductsRequest)(nil),     // 15: stockApi.OrderProductsRequest
-	(*supplierApi.AddSupplierRequest)(nil),    // 16: supplierApi.AddSupplierRequest
-	(*supplierApi.GetSupplierRequest)(nil),    // 17: supplierApi.GetSupplierRequest
-	(*supplierApi.RemoveSupplierRequest)(nil), // 18: supplierApi.RemoveSupplierRequest
-	(*supplierApi.AddProductsRequest)(nil),    // 19: supplierApi.AddProductsRequest
-	(*supplierApi.RemoveProductsRequest)(nil), // 20: supplierApi.RemoveProductsRequest
-	(*supplierApi.OrderProductRequest)(nil),   // 21: supplierApi.OrderProductRequest
-	(*customerApi.AddCustomerReply)(nil),      // 22: customerApi.AddCustomerReply
-	(*customerApi.GetCustomerReply)(nil),      // 23: customerApi.GetCustomerReply
-	(*customerApi.RemoveCustomerReply)(nil),   // 24: customerApi.RemoveCustomerReply
-	(*orderApi.NewOrderReply)(nil),            // 25: orderApi.NewOrderReply
-	(*orderApi.GetOrderReply)(nil),            // 26: orderApi.GetOrderReply
-	(*orderApi.SetOrderStatusReply)(nil),      // 27: orderApi.SetOrderStatusReply
-	(*orderApi.SetPaymentStatusReply)(nil),    // 28: orderApi.SetPaymentStatusReply
-	(*orderApi.SetDeliveryStatusReply)(nil),   // 29: orderApi.SetDeliveryStatusReply
-	(*paymentApi.PayMyOrderReply)(nil),        // 30: paymentApi.PayMyOrderReply
-	(*paymentApi.IsOrderPayedReply)(nil),      // 31: paymentApi.IsOrderPayedReply
-	(*shipmentApi.ShipMyOrderReply)(nil),      // 32: shipmentApi.ShipMyOrderReply
-	(*shipmentApi.IsOrderShippedReply)(nil),   // 33: shipmentApi.IsOrderShippedReply
-	(*stockApi.AddProductsReply)(nil),         // 34: stockApi.AddProductsReply
-	(*stockApi.GetProductsReply)(nil),         // 35: stockApi.GetProductsReply
-	(*stockApi.RemoveProductReply)(nil),       // 36: stockApi.RemoveProductReply
-	(*stockApi.OrderProductsReply)(nil),       // 37: stockApi.OrderProductsReply
-	(*supplierApi.AddSupplierReply)(nil),      // 38: supplierApi.AddSupplierReply
-	(*supplierApi.GetSupplierReply)(nil),      // 39: supplierApi.GetSupplierReply
-	(*supplierApi.RemoveSupplierReply)(nil),   // 40: supplierApi.RemoveSupplierReply
-	(*supplierApi.AddProductsReply)(nil),      // 41: supplierApi.AddProductsReply
-	(*supplierApi.RemoveProductsReply)(nil),   // 42: supplierApi.RemoveProductsReply
-	(*supplierApi.OrderProductReply)(nil),     // 43: supplierApi.OrderProductReply
+	(*orderApi.CancelOrderRequest)(nil),       // 8: orderApi.CancelOrderRequest
+	(*paymentApi.PayMyOrderRequest)(nil),      // 9: paymentApi.PayMyOrderRequest
+	(*paymentApi.IsOrderPayedRequest)(nil),    // 10: paymentApi.IsOrderPayedRequest
+	(*paymentApi.RefundMyOrderRequest)(nil),   // 11: paymentApi.RefundMyOrderRequest
+	(*shipmentApi.ShipMyOrderRequest)(nil),    // 12: shipmentApi.ShipMyOrderRequest
+	(*shipmentApi.IsOrderShippedRequest)(nil), // 13: shipmentApi.IsOrderShippedRequest
+	(*stockApi.AddProductsRequest)(nil),       // 14: stockApi.AddProductsRequest
+	(*stockApi.GetProductsRequest)(nil),       // 15: stockApi.GetProductsRequest
+	(*stockApi.RemoveProductRequest)(nil),     // 16: stockApi.RemoveProductRequest
+	(*stockApi.OrderProductsRequest)(nil),     // 17: stockApi.OrderProductsRequest
+	(*supplierApi.AddSupplierRequest)(nil),    // 18: supplierApi.AddSupplierRequest
+	(*supplierApi.GetSupplierRequest)(nil),    // 19: supplierApi.GetSupplierRequest
+	(*supplierApi.RemoveSupplierRequest)(nil), // 20: supplierApi.RemoveSupplierRequest
+	(*supplierApi.AddProductsRequest)(nil),    // 21: supplierApi.AddProductsRequest
+	(*supplierApi.RemoveProductsRequest)(nil), // 22: supplierApi.RemoveProductsRequest
+	(*supplierApi.OrderProductRequest)(nil),   // 23: supplierApi.OrderProductRequest
+	(*customerApi.AddCustomerReply)(nil),      // 24: customerApi.AddCustomerReply
+	(*customerApi.GetCustomerReply)(nil),      // 25: customerApi.GetCustomerReply
+	(*customerApi.RemoveCustomerReply)(nil),   // 26: customerApi.RemoveCustomerReply
+	(*orderApi.NewOrderReply)(nil),            // 27: orderApi.NewOrderReply
+	(*orderApi.GetOrderReply)(nil),            // 28: orderApi.GetOrderReply
+	(*orderApi.SetOrderStatusReply)(nil),      // 29: orderApi.SetOrderStatusReply
+	(*orderApi.SetPaymentStatusReply)(nil),    // 30: orderApi.SetPaymentStatusReply
+	(*orderApi.SetDeliveryStatusReply)(nil),   // 31: orderApi.SetDeliveryStatusReply
+	(*orderApi.CancelOrderReply)(nil),         // 32: orderApi.CancelOrderReply
+	(*paymentApi.PayMyOrderReply)(nil),        // 33: paymentApi.PayMyOrderReply
+	(*paymentApi.IsOrderPayedReply)(nil),      // 34: paymentApi.IsOrderPayedReply
+	(*paymentApi.RefundMyOrderReply)(nil),     // 35: paymentApi.RefundMyOrderReply
+	(*shipmentApi.ShipMyOrderReply)(nil),      // 36: shipmentApi.ShipMyOrderReply
+	(*shipmentApi.IsOrderShippedReply)(nil),   // 37: shipmentApi.IsOrderShippedReply
+	(*stockApi.AddProductsReply)(nil),         // 38: stockApi.AddProductsReply
+	(*stockApi.GetProductsReply)(nil),         // 39: stockApi.GetProductsReply
+	(*stockApi.RemoveProductReply)(nil),       // 40: stockApi.RemoveProductReply
+	(*stockApi.OrderProductsReply)(nil),       // 41: stockApi.OrderProductsReply
+	(*supplierApi.AddSupplierReply)(nil),      // 42: supplierApi.AddSupplierReply
+	(*supplierApi.GetSupplierReply)(nil),      // 43: supplierApi.GetSupplierReply
+	(*supplierApi.RemoveSupplierReply)(nil),   // 44: supplierApi.RemoveSupplierReply
+	(*supplierApi.AddProductsReply)(nil),      // 45: supplierApi.AddProductsReply
+	(*supplierApi.RemoveProductsReply)(nil),   // 46: supplierApi.RemoveProductsReply
+	(*supplierApi.OrderProductReply)(nil),     // 47: supplierApi.OrderProductReply
 }
 var file_microservices_api_services_services_proto_depIdxs = []int32{
 	0,  // 0: services.CustomerService.AddCustomer:input_type -> customerApi.AddCustomerRequest
@@ -232,44 +246,48 @@ var file_microservices_api_services_services_proto_depIdxs = []int32{
 	5,  // 5: services.OrderService.SetOrderStatus:input_type -> orderApi.SetOrderStatusRequest
 	6,  // 6: services.OrderService.SetPaymentStatus:input_type -> orderApi.SetPaymentStatusRequest
 	7,  // 7: services.OrderService.SetDeliveryStatus:input_type -> orderApi.SetDeliveryStatusRequest
-	8,  // 8: services.PaymentService.PayMyOrder:input_type -> paymentApi.PayMyOrderRequest
-	9,  // 9: services.PaymentService.IsOrderPayed:input_type -> paymentApi.IsOrderPayedRequest
-	10, // 10: services.ShipmentService.ShipMyOrder:input_type -> shipmentApi.ShipMyOrderRequest
-	11, // 11: services.ShipmentService.IsOrderShipped:input_type -> shipmentApi.IsOrderShippedRequest
-	12, // 12: services.StockService.AddProducts:input_type -> stockApi.AddProductsRequest
-	13, // 13: services.StockService.GetProducts:input_type -> stockApi.GetProductsRequest
-	14, // 14: services.StockService.RemoveProduct:input_type -> stockApi.RemoveProductRequest
-	15, // 15: services.StockService.OrderProducts:input_type -> stockApi.OrderProductsRequest
-	16, // 16: services.SupplierService.AddSupplier:input_type -> supplierApi.AddSupplierRequest
-	17, // 17: services.SupplierService.GetSupplier:input_type -> supplierApi.GetSupplierRequest
-	18, // 18: services.SupplierService.RemoveSupplier:input_type -> supplierApi.RemoveSupplierRequest
-	19, // 19: services.SupplierService.AddProducts:input_type -> supplierApi.AddProductsRequest
-	20, // 20: services.SupplierService.RemoveProducts:input_type -> supplierApi.RemoveProductsRequest
-	21, // 21: services.SupplierService.OrderProduct:input_type -> supplierApi.OrderProductRequest
-	22, // 22: services.CustomerService.AddCustomer:output_type -> customerApi.AddCustomerReply
-	23, // 23: services.CustomerService.GetCustomer:output_type -> customerApi.GetCustomerReply
-	24, // 24: services.CustomerService.RemoveCustomer:output_type -> customerApi.RemoveCustomerReply
-	25, // 25: services.OrderService.NewOrder:output_type -> orderApi.NewOrderReply
-	26, // 26: services.OrderService.GetOrder:output_type -> orderApi.GetOrderReply
-	27, // 27: services.OrderService.SetOrderStatus:output_type -> orderApi.SetOrderStatusReply
-	28, // 28: services.OrderService.SetPaymentStatus:output_type -> orderApi.SetPaymentStatusReply
-	29, // 29: services.OrderService.SetDeliveryStatus:output_type -> orderApi.SetDeliveryStatusReply
-	30, // 30: services.PaymentService.PayMyOrder:output_type -> paymentApi.PayMyOrderReply
-	31, // 31: services.PaymentService.IsOrderPayed:output_type -> paymentApi.IsOrderPayedReply
-	32, // 32: services.ShipmentService.ShipMyOrder:output_type -> shipmentApi.ShipMyOrderReply
-	33, // 33: services.ShipmentService.IsOrderShipped:output_type -> shipmentApi.IsOrderShippedReply
-	34, // 34: services.StockService.AddProducts:output_type -> stockApi.AddProductsReply
-	35, // 35: services.StockService.GetProducts:output_type -> stockApi.GetProductsReply
-	36, // 36: services.StockService.RemoveProduct:output_type -> stockApi.RemoveProductReply
-	37, // 37: services.StockService.OrderProducts:output_type -> stockApi.OrderProductsReply
-	38, // 38: services.SupplierService.AddSupplier:output_type -> supplierApi.AddSupplierReply
-	39, // 39: services.SupplierService.GetSupplier:output_type -> supplierApi.GetSupplierReply
-	40, // 40: services.SupplierService.RemoveSupplier:output_type -> supplierApi.RemoveSupplierReply
-	41, // 41: services.SupplierService.AddProducts:output_type -> supplierApi.AddProductsReply
-	42, // 42: services.SupplierService.RemoveProducts:output_type -> supplierApi.RemoveProductsReply
-	43, // 43: services.SupplierService.OrderProduct:output_type -> supplierApi.OrderProductReply
-	22, // [22:44] is the sub-list for method output_type
-	0,  // [0:22] is the sub-list for method input_type
+	8,  // 8: services.OrderService.CancelOrder:input_type -> orderApi.CancelOrderRequest
+	9,  // 9: services.PaymentService.PayMyOrder:input_type -> paymentApi.PayMyOrderRequest
+	10, // 10: services.PaymentService.IsOrderPayed:input_type -> paymentApi.IsOrderPayedRequest
+	11, // 11: services.PaymentService.RefundMyOrder:input_type -> paymentApi.RefundMyOrderRequest
+	12, // 12: services.ShipmentService.ShipMyOrder:input_type -> shipmentApi.ShipMyOrderRequest
+	13, // 13: services.ShipmentService.IsOrderShipped:input_type -> shipmentApi.IsOrderShippedRequest
+	14, // 14: services.StockService.AddProducts:input_type -> stockApi.AddProductsRequest
+	15, // 15: services.StockService.GetProducts:input_type -> stockApi.GetProductsRequest
+	16, // 16: services.StockService.RemoveProduct:input_type -> stockApi.RemoveProductRequest
+	17, // 17: services.StockService.OrderProducts:input_type -> stockApi.OrderProductsRequest
+	18, // 18: services.SupplierService.AddSupplier:input_type -> supplierApi.AddSupplierRequest
+	19, // 19: services.SupplierService.GetSupplier:input_type -> supplierApi.GetSupplierRequest
+	20, // 20: services.SupplierService.RemoveSupplier:input_type -> supplierApi.RemoveSupplierRequest
+	21, // 21: services.SupplierService.AddProducts:input_type -> supplierApi.AddProductsRequest
+	22, // 22: services.SupplierService.RemoveProducts:input_type -> supplierApi.RemoveProductsRequest
+	23, // 23: services.SupplierService.OrderProduct:input_type -> supplierApi.OrderProductRequest
+	24, // 24: services.CustomerService.AddCustomer:output_type -> customerApi.AddCustomerReply
+	25, // 25: services.CustomerService.GetCustomer:output_type -> customerApi.GetCustomerReply
+	26, // 26: services.CustomerService.RemoveCustomer:output_type -> customerApi.RemoveCustomerReply
+	27, // 27: services.OrderService.NewOrder:output_type -> orderApi.NewOrderReply
+	28, // 28: services.OrderService.GetOrder:output_type -> orderApi.GetOrderReply
+	29, // 29: services.OrderService.SetOrderStatus:output_type -> orderApi.SetOrderStatusReply
+	30, // 30: services.OrderService.SetPaymentStatus:output_type -> orderApi.SetPaymentStatusReply
+	31, // 31: services.OrderService.SetDeliveryStatus:output_type -> orderApi.SetDeliveryStatusReply
+	32, // 32: services.OrderService.CancelOrder:output_type -> orderApi.CancelOrderReply
+	33, // 33: services.PaymentService.PayMyOrder:output_type -> paymentApi.PayMyOrderReply
+	34, // 34: services.PaymentService.IsOrderPayed:output_type -> paymentApi.IsOrderPayedReply
+	35, // 35: services.PaymentService.RefundMyOrder:output_type -> paymentApi.RefundMyOrderReply
+	36, // 36: services.ShipmentService.ShipMyOrder:output_type -> shipmentApi.ShipMyOrderReply
+	37, // 37: services.ShipmentService.IsOrderShipped:output_type -> shipmentApi.IsOrderShippedReply
+	38, // 38: services.StockService.AddProducts:output_type -> stockApi.AddProductsReply
+	39, // 39: services.StockService.GetProducts:output_type -> stockApi.GetProductsReply
+	40, // 40: services.StockService.RemoveProduct:output_type -> stockApi.RemoveProductReply
+	41, // 41: services.StockService.OrderProducts:output_type -> stockApi.OrderProductsReply
+	42, // 42: services.SupplierService.AddSupplier:output_type -> supplierApi.AddSupplierReply
+	43, // 43: services.SupplierService.GetSupplier:output_type -> supplierApi.GetSupplierReply
+	44, // 44: services.SupplierService.RemoveSupplier:output_type -> supplierApi.RemoveSupplierReply
+	45, // 45: services.SupplierService.AddProducts:output_type -> supplierApi.AddProductsReply
+	46, // 46: services.SupplierService.RemoveProducts:output_type -> supplierApi.RemoveProductsReply
+	47, // 47: services.SupplierService.OrderProduct:output_type -> supplierApi.OrderProductReply
+	24, // [24:48] is the sub-list for method output_type
+	0,  // [0:24] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

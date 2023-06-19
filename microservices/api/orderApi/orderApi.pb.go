@@ -547,6 +547,108 @@ func (x *SetDeliveryStatusReply) GetDeliveryStatus() types.DELIVERY_STATUS {
 	return types.DELIVERY_STATUS(0)
 }
 
+type CancelOrderRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CustomerId uint32 `protobuf:"varint,1,opt,name=customerId,proto3" json:"customerId,omitempty"`
+	OrderId    uint32 `protobuf:"varint,2,opt,name=orderId,proto3" json:"orderId,omitempty"`
+}
+
+func (x *CancelOrderRequest) Reset() {
+	*x = CancelOrderRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_microservices_api_orderApi_orderApi_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CancelOrderRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelOrderRequest) ProtoMessage() {}
+
+func (x *CancelOrderRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_microservices_api_orderApi_orderApi_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelOrderRequest.ProtoReflect.Descriptor instead.
+func (*CancelOrderRequest) Descriptor() ([]byte, []int) {
+	return file_microservices_api_orderApi_orderApi_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *CancelOrderRequest) GetCustomerId() uint32 {
+	if x != nil {
+		return x.CustomerId
+	}
+	return 0
+}
+
+func (x *CancelOrderRequest) GetOrderId() uint32 {
+	if x != nil {
+		return x.OrderId
+	}
+	return 0
+}
+
+type CancelOrderReply struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	OrderCanceled bool `protobuf:"varint,1,opt,name=orderCanceled,proto3" json:"orderCanceled,omitempty"`
+}
+
+func (x *CancelOrderReply) Reset() {
+	*x = CancelOrderReply{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_microservices_api_orderApi_orderApi_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CancelOrderReply) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CancelOrderReply) ProtoMessage() {}
+
+func (x *CancelOrderReply) ProtoReflect() protoreflect.Message {
+	mi := &file_microservices_api_orderApi_orderApi_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CancelOrderReply.ProtoReflect.Descriptor instead.
+func (*CancelOrderReply) Descriptor() ([]byte, []int) {
+	return file_microservices_api_orderApi_orderApi_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *CancelOrderReply) GetOrderCanceled() bool {
+	if x != nil {
+		return x.OrderCanceled
+	}
+	return false
+}
+
 var File_microservices_api_orderApi_orderApi_proto protoreflect.FileDescriptor
 
 var file_microservices_api_orderApi_orderApi_proto_rawDesc = []byte{
@@ -610,13 +712,22 @@ var file_microservices_api_orderApi_orderApi_proto_rawDesc = []byte{
 	0x65, 0x6c, 0x69, 0x76, 0x65, 0x72, 0x79, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18, 0x01, 0x20,
 	0x01, 0x28, 0x0e, 0x32, 0x16, 0x2e, 0x74, 0x79, 0x70, 0x65, 0x73, 0x2e, 0x44, 0x45, 0x4c, 0x49,
 	0x56, 0x45, 0x52, 0x59, 0x5f, 0x53, 0x54, 0x41, 0x54, 0x55, 0x53, 0x52, 0x0e, 0x64, 0x65, 0x6c,
-	0x69, 0x76, 0x65, 0x72, 0x79, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x42, 0x54, 0x5a, 0x52, 0x67,
-	0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e, 0x6c, 0x72, 0x7a, 0x2e, 0x64, 0x65, 0x2f, 0x76, 0x73, 0x73,
-	0x2f, 0x73, 0x65, 0x6d, 0x65, 0x73, 0x74, 0x65, 0x72, 0x2f, 0x6f, 0x62, 0x2d, 0x32, 0x33, 0x73,
-	0x73, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x2d, 0x32, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x32,
-	0x2d, 0x67, 0x72, 0x70, 0x30, 0x36, 0x2f, 0x6d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x65, 0x72, 0x76,
-	0x69, 0x63, 0x65, 0x73, 0x2f, 0x61, 0x70, 0x69, 0x2f, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x41, 0x70,
-	0x69, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x69, 0x76, 0x65, 0x72, 0x79, 0x53, 0x74, 0x61, 0x74, 0x75, 0x73, 0x22, 0x4e, 0x0a, 0x12, 0x43,
+	0x61, 0x6e, 0x63, 0x65, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73,
+	0x74, 0x12, 0x1e, 0x0a, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x49, 0x64, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x0a, 0x63, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x65, 0x72, 0x49,
+	0x64, 0x12, 0x18, 0x0a, 0x07, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x49, 0x64, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x07, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x49, 0x64, 0x22, 0x38, 0x0a, 0x10, 0x43,
+	0x61, 0x6e, 0x63, 0x65, 0x6c, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x52, 0x65, 0x70, 0x6c, 0x79, 0x12,
+	0x24, 0x0a, 0x0d, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x43, 0x61, 0x6e, 0x63, 0x65, 0x6c, 0x65, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x0d, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x43, 0x61, 0x6e,
+	0x63, 0x65, 0x6c, 0x65, 0x64, 0x42, 0x54, 0x5a, 0x52, 0x67, 0x69, 0x74, 0x6c, 0x61, 0x62, 0x2e,
+	0x6c, 0x72, 0x7a, 0x2e, 0x64, 0x65, 0x2f, 0x76, 0x73, 0x73, 0x2f, 0x73, 0x65, 0x6d, 0x65, 0x73,
+	0x74, 0x65, 0x72, 0x2f, 0x6f, 0x62, 0x2d, 0x32, 0x33, 0x73, 0x73, 0x2f, 0x62, 0x6c, 0x61, 0x74,
+	0x74, 0x2d, 0x32, 0x2f, 0x62, 0x6c, 0x61, 0x74, 0x74, 0x32, 0x2d, 0x67, 0x72, 0x70, 0x30, 0x36,
+	0x2f, 0x6d, 0x69, 0x63, 0x72, 0x6f, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x73, 0x2f, 0x61,
+	0x70, 0x69, 0x2f, 0x6f, 0x72, 0x64, 0x65, 0x72, 0x41, 0x70, 0x69, 0x62, 0x06, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x33,
 }
 
 var (
@@ -631,7 +742,7 @@ func file_microservices_api_orderApi_orderApi_proto_rawDescGZIP() []byte {
 	return file_microservices_api_orderApi_orderApi_proto_rawDescData
 }
 
-var file_microservices_api_orderApi_orderApi_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_microservices_api_orderApi_orderApi_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_microservices_api_orderApi_orderApi_proto_goTypes = []interface{}{
 	(*NewOrderRequest)(nil),          // 0: orderApi.NewOrderRequest
 	(*NewOrderReply)(nil),            // 1: orderApi.NewOrderReply
@@ -643,16 +754,18 @@ var file_microservices_api_orderApi_orderApi_proto_goTypes = []interface{}{
 	(*SetPaymentStatusReply)(nil),    // 7: orderApi.SetPaymentStatusReply
 	(*SetDeliveryStatusRequest)(nil), // 8: orderApi.SetDeliveryStatusRequest
 	(*SetDeliveryStatusReply)(nil),   // 9: orderApi.SetDeliveryStatusReply
-	nil,                              // 10: orderApi.NewOrderRequest.ProductsEntry
-	(*types.Order)(nil),              // 11: types.Order
-	(types.DELIVERY_STATUS)(0),       // 12: types.DELIVERY_STATUS
+	(*CancelOrderRequest)(nil),       // 10: orderApi.CancelOrderRequest
+	(*CancelOrderReply)(nil),         // 11: orderApi.CancelOrderReply
+	nil,                              // 12: orderApi.NewOrderRequest.ProductsEntry
+	(*types.Order)(nil),              // 13: types.Order
+	(types.DELIVERY_STATUS)(0),       // 14: types.DELIVERY_STATUS
 }
 var file_microservices_api_orderApi_orderApi_proto_depIdxs = []int32{
-	10, // 0: orderApi.NewOrderRequest.products:type_name -> orderApi.NewOrderRequest.ProductsEntry
-	11, // 1: orderApi.NewOrderReply.order:type_name -> types.Order
-	11, // 2: orderApi.GetOrderReply.order:type_name -> types.Order
-	12, // 3: orderApi.SetDeliveryStatusRequest.status:type_name -> types.DELIVERY_STATUS
-	12, // 4: orderApi.SetDeliveryStatusReply.deliveryStatus:type_name -> types.DELIVERY_STATUS
+	12, // 0: orderApi.NewOrderRequest.products:type_name -> orderApi.NewOrderRequest.ProductsEntry
+	13, // 1: orderApi.NewOrderReply.order:type_name -> types.Order
+	13, // 2: orderApi.GetOrderReply.order:type_name -> types.Order
+	14, // 3: orderApi.SetDeliveryStatusRequest.status:type_name -> types.DELIVERY_STATUS
+	14, // 4: orderApi.SetDeliveryStatusReply.deliveryStatus:type_name -> types.DELIVERY_STATUS
 	5,  // [5:5] is the sub-list for method output_type
 	5,  // [5:5] is the sub-list for method input_type
 	5,  // [5:5] is the sub-list for extension type_name
@@ -786,6 +899,30 @@ func file_microservices_api_orderApi_orderApi_proto_init() {
 				return nil
 			}
 		}
+		file_microservices_api_orderApi_orderApi_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CancelOrderRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_microservices_api_orderApi_orderApi_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CancelOrderReply); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -793,7 +930,7 @@ func file_microservices_api_orderApi_orderApi_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_microservices_api_orderApi_orderApi_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

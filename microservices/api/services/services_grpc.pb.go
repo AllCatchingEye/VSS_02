@@ -194,6 +194,7 @@ const (
 	OrderService_SetOrderStatus_FullMethodName    = "/services.OrderService/SetOrderStatus"
 	OrderService_SetPaymentStatus_FullMethodName  = "/services.OrderService/SetPaymentStatus"
 	OrderService_SetDeliveryStatus_FullMethodName = "/services.OrderService/SetDeliveryStatus"
+	OrderService_CancelOrder_FullMethodName       = "/services.OrderService/CancelOrder"
 )
 
 // OrderServiceClient is the client API for OrderService service.
@@ -205,6 +206,7 @@ type OrderServiceClient interface {
 	SetOrderStatus(ctx context.Context, in *orderApi.SetOrderStatusRequest, opts ...grpc.CallOption) (*orderApi.SetOrderStatusReply, error)
 	SetPaymentStatus(ctx context.Context, in *orderApi.SetPaymentStatusRequest, opts ...grpc.CallOption) (*orderApi.SetPaymentStatusReply, error)
 	SetDeliveryStatus(ctx context.Context, in *orderApi.SetDeliveryStatusRequest, opts ...grpc.CallOption) (*orderApi.SetDeliveryStatusReply, error)
+	CancelOrder(ctx context.Context, in *orderApi.CancelOrderRequest, opts ...grpc.CallOption) (*orderApi.CancelOrderReply, error)
 }
 
 type orderServiceClient struct {
@@ -260,6 +262,15 @@ func (c *orderServiceClient) SetDeliveryStatus(ctx context.Context, in *orderApi
 	return out, nil
 }
 
+func (c *orderServiceClient) CancelOrder(ctx context.Context, in *orderApi.CancelOrderRequest, opts ...grpc.CallOption) (*orderApi.CancelOrderReply, error) {
+	out := new(orderApi.CancelOrderReply)
+	err := c.cc.Invoke(ctx, OrderService_CancelOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // OrderServiceServer is the server API for OrderService service.
 // All implementations must embed UnimplementedOrderServiceServer
 // for forward compatibility
@@ -269,6 +280,7 @@ type OrderServiceServer interface {
 	SetOrderStatus(context.Context, *orderApi.SetOrderStatusRequest) (*orderApi.SetOrderStatusReply, error)
 	SetPaymentStatus(context.Context, *orderApi.SetPaymentStatusRequest) (*orderApi.SetPaymentStatusReply, error)
 	SetDeliveryStatus(context.Context, *orderApi.SetDeliveryStatusRequest) (*orderApi.SetDeliveryStatusReply, error)
+	CancelOrder(context.Context, *orderApi.CancelOrderRequest) (*orderApi.CancelOrderReply, error)
 	mustEmbedUnimplementedOrderServiceServer()
 }
 
@@ -290,6 +302,9 @@ func (UnimplementedOrderServiceServer) SetPaymentStatus(context.Context, *orderA
 }
 func (UnimplementedOrderServiceServer) SetDeliveryStatus(context.Context, *orderApi.SetDeliveryStatusRequest) (*orderApi.SetDeliveryStatusReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SetDeliveryStatus not implemented")
+}
+func (UnimplementedOrderServiceServer) CancelOrder(context.Context, *orderApi.CancelOrderRequest) (*orderApi.CancelOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CancelOrder not implemented")
 }
 func (UnimplementedOrderServiceServer) mustEmbedUnimplementedOrderServiceServer() {}
 
@@ -394,6 +409,24 @@ func _OrderService_SetDeliveryStatus_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _OrderService_CancelOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(orderApi.CancelOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(OrderServiceServer).CancelOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: OrderService_CancelOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(OrderServiceServer).CancelOrder(ctx, req.(*orderApi.CancelOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // OrderService_ServiceDesc is the grpc.ServiceDesc for OrderService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -421,14 +454,19 @@ var OrderService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SetDeliveryStatus",
 			Handler:    _OrderService_SetDeliveryStatus_Handler,
 		},
+		{
+			MethodName: "CancelOrder",
+			Handler:    _OrderService_CancelOrder_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "microservices/api/services/services.proto",
 }
 
 const (
-	PaymentService_PayMyOrder_FullMethodName   = "/services.PaymentService/PayMyOrder"
-	PaymentService_IsOrderPayed_FullMethodName = "/services.PaymentService/IsOrderPayed"
+	PaymentService_PayMyOrder_FullMethodName    = "/services.PaymentService/PayMyOrder"
+	PaymentService_IsOrderPayed_FullMethodName  = "/services.PaymentService/IsOrderPayed"
+	PaymentService_RefundMyOrder_FullMethodName = "/services.PaymentService/RefundMyOrder"
 )
 
 // PaymentServiceClient is the client API for PaymentService service.
@@ -437,6 +475,7 @@ const (
 type PaymentServiceClient interface {
 	PayMyOrder(ctx context.Context, in *paymentApi.PayMyOrderRequest, opts ...grpc.CallOption) (*paymentApi.PayMyOrderReply, error)
 	IsOrderPayed(ctx context.Context, in *paymentApi.IsOrderPayedRequest, opts ...grpc.CallOption) (*paymentApi.IsOrderPayedReply, error)
+	RefundMyOrder(ctx context.Context, in *paymentApi.RefundMyOrderRequest, opts ...grpc.CallOption) (*paymentApi.RefundMyOrderReply, error)
 }
 
 type paymentServiceClient struct {
@@ -465,12 +504,22 @@ func (c *paymentServiceClient) IsOrderPayed(ctx context.Context, in *paymentApi.
 	return out, nil
 }
 
+func (c *paymentServiceClient) RefundMyOrder(ctx context.Context, in *paymentApi.RefundMyOrderRequest, opts ...grpc.CallOption) (*paymentApi.RefundMyOrderReply, error) {
+	out := new(paymentApi.RefundMyOrderReply)
+	err := c.cc.Invoke(ctx, PaymentService_RefundMyOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PaymentServiceServer is the server API for PaymentService service.
 // All implementations must embed UnimplementedPaymentServiceServer
 // for forward compatibility
 type PaymentServiceServer interface {
 	PayMyOrder(context.Context, *paymentApi.PayMyOrderRequest) (*paymentApi.PayMyOrderReply, error)
 	IsOrderPayed(context.Context, *paymentApi.IsOrderPayedRequest) (*paymentApi.IsOrderPayedReply, error)
+	RefundMyOrder(context.Context, *paymentApi.RefundMyOrderRequest) (*paymentApi.RefundMyOrderReply, error)
 	mustEmbedUnimplementedPaymentServiceServer()
 }
 
@@ -483,6 +532,9 @@ func (UnimplementedPaymentServiceServer) PayMyOrder(context.Context, *paymentApi
 }
 func (UnimplementedPaymentServiceServer) IsOrderPayed(context.Context, *paymentApi.IsOrderPayedRequest) (*paymentApi.IsOrderPayedReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsOrderPayed not implemented")
+}
+func (UnimplementedPaymentServiceServer) RefundMyOrder(context.Context, *paymentApi.RefundMyOrderRequest) (*paymentApi.RefundMyOrderReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RefundMyOrder not implemented")
 }
 func (UnimplementedPaymentServiceServer) mustEmbedUnimplementedPaymentServiceServer() {}
 
@@ -533,6 +585,24 @@ func _PaymentService_IsOrderPayed_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PaymentService_RefundMyOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(paymentApi.RefundMyOrderRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PaymentServiceServer).RefundMyOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PaymentService_RefundMyOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PaymentServiceServer).RefundMyOrder(ctx, req.(*paymentApi.RefundMyOrderRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PaymentService_ServiceDesc is the grpc.ServiceDesc for PaymentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -547,6 +617,10 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IsOrderPayed",
 			Handler:    _PaymentService_IsOrderPayed_Handler,
+		},
+		{
+			MethodName: "RefundMyOrder",
+			Handler:    _PaymentService_RefundMyOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

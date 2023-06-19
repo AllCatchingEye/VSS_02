@@ -54,7 +54,7 @@ func (state *server) PayMyOrder(ctx context.Context, req *paymentApi.PayMyOrderR
 
 	state.payedOrders = append(state.payedOrders, req.OrderId)
 	// set payment status
-	_, err = setPaymentStatus(state.redis, req.GetOrderId())
+	_, err = setPaymentStatus(state.redis, req.GetOrderId(), true)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +87,41 @@ func (state *server) IsOrderPayed(ctx context.Context, req *paymentApi.IsOrderPa
 		}
 	}
 	return &paymentApi.IsOrderPayedReply{IsPayed: false}, nil
+}
+
+func (state *server) RefundMyOrder(ctx context.Context, req *paymentApi.RefundMyOrderRequest) (*paymentApi.RefundMyOrderReply, error) {
+	fmt.Println("RefundMyOrder called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
+	fmt.Println(req.GetOrderId())
+	err := state.nats.Publish("log.paymentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.paymentApi: cannot publish event")
+	}
+	// Check if customer exists
+	fmt.Println("checking customerID: ", req.GetCustomerId())
+	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Could get customer: ", customer.GetName())
+	// Check if order exists
+	fmt.Println("checking orderID: ", req.GetOrderId())
+	orderID, err := checkOrderID(state.redis, req.GetOrderId(), req.GetCustomerId())
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Could get order: ", orderID)
+
+	// set payment status
+	_, err = setPaymentStatus(state.redis, req.GetOrderId(), false)
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("Refund status reset successfully.")
+	return &paymentApi.RefundMyOrderReply{RefundSuccess: true}, nil
 }
 
 func main() {
@@ -191,7 +226,7 @@ func checkOrderID(redis *redis.Client, orderID uint32, customerID uint32) (uint3
 	return res.GetOrderId(), nil
 }
 
-func setPaymentStatus(redis *redis.Client, orderID uint32) (bool, error) {
+func setPaymentStatus(redis *redis.Client, orderID uint32, status bool) (bool, error) {
 	// Check if order exists
 	orderAddress, err := redis.Get(context.TODO(), "service:orderApi").Result()
 	if err != nil {
@@ -212,7 +247,7 @@ func setPaymentStatus(redis *redis.Client, orderID uint32) (bool, error) {
 
 	orderClient := services.NewOrderServiceClient(orderConn)
 	fmt.Println("orderClient successful.")
-	res, err := orderClient.SetPaymentStatus(context.Background(), &orderApi.SetPaymentStatusRequest{OrderId: orderID, Status: true})
+	res, err := orderClient.SetPaymentStatus(context.Background(), &orderApi.SetPaymentStatusRequest{OrderId: orderID, Status: status})
 	if err != nil {
 		return false, fmt.Errorf("could not set payment status of order with ID %v: %v", orderID, err)
 	}

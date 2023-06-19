@@ -50,3 +50,12 @@ message SetDeliveryStatusRequest {
 message SetDeliveryStatusReply {
     types.DELIVERY_STATUS deliveryStatus = 1;
 }
+
+message CancelOrderRequest {
+    uint32 customerId = 1;
+    uint32 orderId = 2;
+}
+
+message CancelOrderReply {
+    bool orderCanceled = 1;
+}

@@ -21,11 +21,13 @@ service OrderService {
     rpc SetOrderStatus (orderApi.SetOrderStatusRequest) returns (orderApi.SetOrderStatusReply){}
     rpc SetPaymentStatus (orderApi.SetPaymentStatusRequest) returns (orderApi.SetPaymentStatusReply){}
     rpc SetDeliveryStatus (orderApi.SetDeliveryStatusRequest) returns (orderApi.SetDeliveryStatusReply){}
+    rpc CancelOrder (orderApi.CancelOrderRequest) returns (orderApi.CancelOrderReply){}
 }
 
 service PaymentService {
     rpc PayMyOrder (paymentApi.PayMyOrderRequest) returns (paymentApi.PayMyOrderReply){}
     rpc IsOrderPayed (paymentApi.IsOrderPayedRequest) returns (paymentApi.IsOrderPayedReply){}
+    rpc RefundMyOrder (paymentApi.RefundMyOrderRequest) returns (paymentApi.RefundMyOrderReply){}
 }
 
 service ShipmentService {

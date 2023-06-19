@@ -8,6 +8,7 @@ import (
 	"github.com/redis/go-redis/v9"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/customerApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
@@ -156,10 +157,48 @@ func (state *server) SetDeliveryStatus(ctx context.Context, req *orderApi.SetDel
 	orderID := req.GetOrderId()
 	order, ok := state.orders[orderID]
 	if !ok {
-		return nil, fmt.Errorf("orderApi not found")
+		return nil, fmt.Errorf("order not found: %v", orderID)
 	}
 	order.DeliveryStatus = req.GetStatus()
 	return &orderApi.SetDeliveryStatusReply{DeliveryStatus: order.GetDeliveryStatus()}, nil
+}
+
+func (state *server) CancelOrder(ctx context.Context, req *orderApi.CancelOrderRequest) (*orderApi.CancelOrderReply, error) {
+	fmt.Println("CancelOrder called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
+	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
+	if err != nil {
+		log.Print("log.orderApi: cannot publish event")
+	}
+	// Check if customer exists
+	if req.GetCustomerId() != 0 {
+		customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+		if err != nil {
+			return nil, err
+		}
+		fmt.Println("Could get customer: ", customer.GetName())
+	}
+
+	orderID := req.GetOrderId()
+	order, ok := state.orders[orderID]
+	if !ok {
+		return nil, fmt.Errorf("order not found: %v", orderID)
+	}
+	if order.GetDeliveryStatus() == types.DELIVERY_STATUS_NOT_SENT {
+		// call stock to restock the products
+		err := state.nats.Publish("sto.cancel", []byte(fmt.Sprintf("cancel %v", orderID)))
+		if err != nil {
+			return nil, fmt.Errorf("cannot publish event")
+		}
+		// call payment to refund the money
+		if order.GetPaymentStatus() {
+			refundOrder(state.redis, orderID, req.GetCustomerId())
+		}
+	}
+	return &orderApi.CancelOrderReply{OrderCanceled: true}, nil
 }
 
 func main() {
@@ -246,4 +285,31 @@ func checkCustomerID(redis *redis.Client, customerID uint32) (*types.Customer, e
 		return nil, fmt.Errorf("customer with ID %v does not exist: %v", customerID, err)
 	}
 	return res.GetCustomer(), nil
+}
+
+func refundOrder(rdb *redis.Client, orderID uint32, customerID uint32) bool {
+	paymentAddress, err := rdb.Get(context.TODO(), "service:paymentApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the payment service address %v", err)
+	}
+
+	paymentConn, err := grpc.Dial(paymentAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to payment service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to payment service %v", err)
+		}
+	}(paymentConn)
+
+	paymentClient := services.NewPaymentServiceClient(paymentConn)
+
+	res, err := paymentClient.RefundMyOrder(context.Background(), &paymentApi.RefundMyOrderRequest{OrderId: orderID, CustomerId: customerID})
+	if err != nil {
+		log.Fatalf("error while trying to refund the order %v", err)
+	}
+	fmt.Println("refund successful: ", res.GetRefundSuccess())
+	return res.GetRefundSuccess()
 }
