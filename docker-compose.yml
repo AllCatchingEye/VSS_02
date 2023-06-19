@@ -100,11 +100,10 @@ services:
         build:
             dockerfile: docker/Dockerfile.client
             context: .
-            args:
-                - SCENARIO=1
         depends_on:
             - nats
             - redis
         command:
             -nats nats:4222
             -redis redis:6379
+            -SCENARIO=1

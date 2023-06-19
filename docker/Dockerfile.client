@@ -1,8 +1,6 @@
 FROM gitlab.lrz.de:5005/hm/dockerhub/golang:alpine as builder
 LABEL authors="Nicolas Lerch & Georg Lang"
 
-ARG SCENARIO
-
 WORKDIR /blatt2-grp06
 COPY . .
 
@@ -10,5 +8,4 @@ RUN go build -o /exec-client microservices/client/client.go
 
 FROM gitlab.lrz.de:5005/hm/dockerhub/alpine:latest
 COPY --from=builder /exec-client /client
-ENV SCENARIO=$SCENARIO
 ENTRYPOINT ["/client"]
