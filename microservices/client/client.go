@@ -32,7 +32,7 @@ func main() {
 
 	nc, err := nats.Connect(*flagNATS)
 	if err != nil {
-		log.Fatal("cannot connect to nats")
+		log.Fatal("cannot connect to nats: ", err)
 	}
 	defer nc.Close()
 
