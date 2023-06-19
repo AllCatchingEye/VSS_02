@@ -15,7 +15,9 @@ func main() {
 	fmt.Println("starting client")
 	time.Sleep(10 * time.Second)
 
+	fmt.Println("loading environment variables...")
 	scenario := os.Getenv("SCENARIO")
+	fmt.Println("Found scenario: ", scenario)
 
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "customerAddress and port of Redis server")
 	flagNATS := flag.String("nats", "127.0.0.1:4222", "customerAddress and port of NATS server")

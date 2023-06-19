@@ -289,6 +289,41 @@ func main() {
 
 	wc.Add(2)
 
+	subscription3, err := nc.Subscribe("sto.cancel", func(msg *nats.Msg) {
+		fmt.Printf("LOG: \tgot message from subject: %s\n\tdata: %s\n", msg.Subject, string(msg.Data))
+		message := strings.Split(string(msg.Data), " ")
+		orderIDString := message[1]
+		orderID, err := strconv.ParseUint(orderIDString, 10, 32)
+		if err != nil {
+			log.Fatal("cannot parse string to uint")
+		}
+
+		// Get Order
+		orderRes, _ := getOrder(rdb, uint32(orderID))
+		fmt.Println("Getting Order successful")
+
+		// Reserve Products
+		products := orderRes.GetProducts()
+		fmt.Println("order products: ", products)
+		// Restock products that was reserved for order
+		for product, amount := range products {
+			if server.orders[uint32(orderID)][product] == 0 {
+				server.products[product].Amount += amount
+			}
+		}
+	})
+	if err != nil {
+		log.Fatal("cannot subscribe")
+	}
+	defer func(subscription3 *nats.Subscription) {
+		err := subscription3.Unsubscribe()
+		if err != nil {
+			log.Fatal("cannot unsubscribe")
+		}
+	}(subscription3) //nolint
+
+	wc.Add(3)
+
 	services.RegisterStockServiceServer(s, server)
 	fmt.Println("creating stockApi service finished")
 
