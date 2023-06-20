@@ -169,9 +169,9 @@ func main() {
 		fmt.Println(string(m.Data))
 		message := strings.Split(string(m.Data), " ")
 		customerIDString := message[0]
-		customerID, err := strconv.ParseUint(customerIDString, 10, 32)
+		customerID, _ := strconv.ParseUint(customerIDString, 10, 32)
 		productIDString := message[2]
-		productID, err := strconv.ParseUint(productIDString, 10, 32)
+		productID, _ := strconv.ParseUint(productIDString, 10, 32)
 		// Get customer
 		customer, err := checkCustomerID(rdb, uint32(customerID))
 		if err != nil {

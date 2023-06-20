@@ -202,13 +202,11 @@ func Scene5(rdb *redis.Client, nc *nats.Conn) bool {
 	log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
 
 	// Retour product 111 with refund
-	productsRetour := make(map[uint32]uint32)
-	productsRetour[111] = 1
 	rRetour, err := shipmentClient.RetourMyOrder(ctx, &shipmentApi.RetoureRequest{
 		CustomerId: customerID,
 		OrderId:    orderID,
 		WantRefund: true,
-		Products:   productsRetour,
+		Product:    111,
 	})
 	if err != nil {
 		log.Fatalf("could not retour order %v: %v", orderID, err)
