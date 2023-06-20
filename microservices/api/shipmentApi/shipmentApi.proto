@@ -27,7 +27,7 @@ message RetoureRequest {
     uint32 customerId = 1;
     uint32 orderId = 2;
     bool wantRefund = 3;
-    map<uint32, uint32> products = 4;
+    uint32 product = 4;
 }
 
 message RetoureReply {

@@ -10,12 +10,16 @@ import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/paymentApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"reflect"
+	"strconv"
+	"strings"
+	"sync"
 	"time"
 )
 
@@ -160,12 +164,45 @@ func main() {
 	}
 	defer nc.Close()
 
+	subscription, err := nc.Subscribe("pay.refund", func(m *nats.Msg) {
+		fmt.Println("got message on pay.refund")
+		fmt.Println(string(m.Data))
+		message := strings.Split(string(m.Data), " ")
+		customerIDString := message[0]
+		customerID, err := strconv.ParseUint(customerIDString, 10, 32)
+		productIDString := message[2]
+		productID, err := strconv.ParseUint(productIDString, 10, 32)
+		// Get customer
+		customer, err := checkCustomerID(rdb, uint32(customerID))
+		if err != nil {
+			fmt.Println("could not get customer: ", err)
+		} else {
+			product := getProduct(rdb, uint32(productID))
+			fmt.Println("Could get customer: ", customer.GetName())
+			fmt.Println("Refunded ", product.GetPrice(), " EUR to ", customer.GetName())
+		}
+	})
+	if err != nil {
+		log.Fatal("could not read message: ", err)
+	}
+	defer func(subscription *nats.Subscription) {
+		err := subscription.Unsubscribe()
+		if err != nil {
+			log.Fatal("cannot unsubscribe")
+		}
+	}(subscription) //nolint
+
+	var wc sync.WaitGroup
+	wc.Add(1)
+
 	services.RegisterPaymentServiceServer(s, &server{redis: rdb, nats: nc, payedOrders: []uint32{}})
 	fmt.Println("creating paymentApi service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
+
+	wc.Wait()
 }
 
 // Helper
@@ -252,4 +289,42 @@ func setPaymentStatus(redis *redis.Client, orderID uint32, status bool) (bool, e
 		return false, fmt.Errorf("could not set payment status of order with ID %v: %v", orderID, err)
 	}
 	return res.GetPaymentStatus(), nil
+}
+
+func getProduct(rdb *redis.Client, product uint32) *types.Product {
+	// Check if product exists
+	stockAddress, err := rdb.Get(context.Background(), "service:stockApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the stock service address %v", err)
+	}
+	fmt.Println("stockAddress successful.")
+
+	stockConn, err := grpc.Dial(stockAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to stock service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to stock service %v", err)
+		}
+	}(stockConn)
+	fmt.Println("stockConn successful.")
+
+	stockClient := services.NewStockServiceClient(stockConn)
+	fmt.Println("stockClient successful.")
+
+	productIds := []uint32{product}
+	res, err := stockClient.GetProducts(context.Background(), &stockApi.GetProductsRequest{ProductIds: productIds})
+	if err != nil {
+		log.Fatalf("could not get product with ID %v: %v", product, err)
+	}
+	fmt.Println("getProduct successful.")
+
+	resProducts := res.GetProducts()
+	if len(resProducts) != 1 {
+		log.Fatalf("error while getting product %v: %v", product, err)
+	}
+
+	return resProducts[0]
 }
