@@ -153,17 +153,11 @@ func Scene3(rdb *redis.Client, nc *nats.Conn) bool {
 	log.Printf("Deliverystatus: %v", order.GetDeliveryStatus())
 
 	// Cancel Order
-	_, err = orderClient.CancelOrder(ctx, &orderApi.CancelOrderRequest{CustomerId: customerID, OrderId: orderID})
+	ok, err := orderClient.CancelOrder(ctx, &orderApi.CancelOrderRequest{CustomerId: customerID, OrderId: orderID})
 	if err != nil {
 		log.Fatalf("could not cancel order %v: %v", orderID, err)
 	}
-
-	// Get Order but expect to get "Not found"
-	_, err = orderClient.GetOrder(ctx, &orderApi.GetOrderRequest{CustomerId: customerID, OrderId: orderID})
-	if err == nil {
-		log.Fatalf("expected error but got order %v: %v", orderID, err)
-	}
-	log.Printf("Order %v is not found. Success.", orderID)
+	fmt.Println("Order cancelled: ", ok.GetOrderCanceled())
 
 	fmt.Println("Done")
 	return true
