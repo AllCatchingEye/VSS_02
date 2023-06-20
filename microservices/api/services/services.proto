@@ -41,6 +41,7 @@ service StockService {
     rpc GetProducts (stockApi.GetProductsRequest) returns (stockApi.GetProductsReply){}
     rpc RemoveProduct (stockApi.RemoveProductRequest) returns (stockApi.RemoveProductReply){}
     rpc OrderProducts (stockApi.OrderProductsRequest) returns (stockApi.OrderProductsReply){}
+    rpc DecreaseProduct (stockApi.DecreaseProductRequest) returns (stockApi.DecreaseProductReply){}
 }
 
 service SupplierService {

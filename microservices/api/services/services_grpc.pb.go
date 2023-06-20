@@ -792,10 +792,11 @@ var ShipmentService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	StockService_AddProducts_FullMethodName   = "/services.StockService/AddProducts"
-	StockService_GetProducts_FullMethodName   = "/services.StockService/GetProducts"
-	StockService_RemoveProduct_FullMethodName = "/services.StockService/RemoveProduct"
-	StockService_OrderProducts_FullMethodName = "/services.StockService/OrderProducts"
+	StockService_AddProducts_FullMethodName     = "/services.StockService/AddProducts"
+	StockService_GetProducts_FullMethodName     = "/services.StockService/GetProducts"
+	StockService_RemoveProduct_FullMethodName   = "/services.StockService/RemoveProduct"
+	StockService_OrderProducts_FullMethodName   = "/services.StockService/OrderProducts"
+	StockService_DecreaseProduct_FullMethodName = "/services.StockService/DecreaseProduct"
 )
 
 // StockServiceClient is the client API for StockService service.
@@ -806,6 +807,7 @@ type StockServiceClient interface {
 	GetProducts(ctx context.Context, in *stockApi.GetProductsRequest, opts ...grpc.CallOption) (*stockApi.GetProductsReply, error)
 	RemoveProduct(ctx context.Context, in *stockApi.RemoveProductRequest, opts ...grpc.CallOption) (*stockApi.RemoveProductReply, error)
 	OrderProducts(ctx context.Context, in *stockApi.OrderProductsRequest, opts ...grpc.CallOption) (*stockApi.OrderProductsReply, error)
+	DecreaseProduct(ctx context.Context, in *stockApi.DecreaseProductRequest, opts ...grpc.CallOption) (*stockApi.DecreaseProductReply, error)
 }
 
 type stockServiceClient struct {
@@ -852,6 +854,15 @@ func (c *stockServiceClient) OrderProducts(ctx context.Context, in *stockApi.Ord
 	return out, nil
 }
 
+func (c *stockServiceClient) DecreaseProduct(ctx context.Context, in *stockApi.DecreaseProductRequest, opts ...grpc.CallOption) (*stockApi.DecreaseProductReply, error) {
+	out := new(stockApi.DecreaseProductReply)
+	err := c.cc.Invoke(ctx, StockService_DecreaseProduct_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StockServiceServer is the server API for StockService service.
 // All implementations must embed UnimplementedStockServiceServer
 // for forward compatibility
@@ -860,6 +871,7 @@ type StockServiceServer interface {
 	GetProducts(context.Context, *stockApi.GetProductsRequest) (*stockApi.GetProductsReply, error)
 	RemoveProduct(context.Context, *stockApi.RemoveProductRequest) (*stockApi.RemoveProductReply, error)
 	OrderProducts(context.Context, *stockApi.OrderProductsRequest) (*stockApi.OrderProductsReply, error)
+	DecreaseProduct(context.Context, *stockApi.DecreaseProductRequest) (*stockApi.DecreaseProductReply, error)
 	mustEmbedUnimplementedStockServiceServer()
 }
 
@@ -878,6 +890,9 @@ func (UnimplementedStockServiceServer) RemoveProduct(context.Context, *stockApi.
 }
 func (UnimplementedStockServiceServer) OrderProducts(context.Context, *stockApi.OrderProductsRequest) (*stockApi.OrderProductsReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method OrderProducts not implemented")
+}
+func (UnimplementedStockServiceServer) DecreaseProduct(context.Context, *stockApi.DecreaseProductRequest) (*stockApi.DecreaseProductReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DecreaseProduct not implemented")
 }
 func (UnimplementedStockServiceServer) mustEmbedUnimplementedStockServiceServer() {}
 
@@ -964,6 +979,24 @@ func _StockService_OrderProducts_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StockService_DecreaseProduct_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(stockApi.DecreaseProductRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StockServiceServer).DecreaseProduct(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StockService_DecreaseProduct_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StockServiceServer).DecreaseProduct(ctx, req.(*stockApi.DecreaseProductRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StockService_ServiceDesc is the grpc.ServiceDesc for StockService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -986,6 +1019,10 @@ var StockService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "OrderProducts",
 			Handler:    _StockService_OrderProducts_Handler,
+		},
+		{
+			MethodName: "DecreaseProduct",
+			Handler:    _StockService_DecreaseProduct_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

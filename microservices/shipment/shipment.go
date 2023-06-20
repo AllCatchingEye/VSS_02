@@ -10,6 +10,7 @@ import (
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/orderApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/services"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/shipmentApi"
+	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/stockApi"
 	"gitlab.lrz.de/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/api/types"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -121,16 +122,17 @@ func (state *server) RetourMyOrder(ctx context.Context, req *shipmentApi.Retoure
 
 	if req.WantRefund {
 		// call payment service to refund the customer
-		_, err := refundCustomer(state.nats, req.GetCustomerId(), req.GetOrderId(), req.GetProducts())
+		_, err := refundCustomer(state.nats, req.GetCustomerId(), req.GetOrderId(), req.GetProduct())
 		if err != nil {
 			return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not refund customer: %v", err)
 		}
 	} else {
 		// call stock service to send the product
-		_, err := resendProduct(state.redis, req.GetCustomerId(), req.GetOrderId(), req.GetProducts())
+		product, err := resendProduct(state.redis, req.GetCustomerId(), req.GetOrderId(), req.GetProduct())
 		if err != nil {
-			return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not resend product: %v", err)
+			return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not resend product try again later: %v", err)
 		}
+		fmt.Println("Resend product: ", product)
 	}
 	return &shipmentApi.RetoureReply{Success: true}, nil
 }
@@ -269,16 +271,16 @@ func setDeliveryStatus(redis *redis.Client, orderID uint32) (types.DELIVERY_STAT
 	return res.GetDeliveryStatus(), nil
 }
 
-func refundCustomer(nc *nats.Conn, customerID uint32, orderID uint32, products map[uint32]uint32) (bool, error) {
+func refundCustomer(nc *nats.Conn, customerID uint32, orderID uint32, product uint32) (bool, error) {
 	// Publish refund message
-	err := nc.Publish("pay.refund", []byte(fmt.Sprintf("%v %v %v", customerID, orderID, products)))
+	err := nc.Publish("pay.refund", []byte(fmt.Sprintf("%v %v %v", customerID, orderID, product)))
 	if err != nil {
 		return false, fmt.Errorf("shipmentApi: cannot publish event")
 	}
 	return true, nil
 }
 
-func resendProduct(rdb *redis.Client, customerID uint32, orderID uint32, products map[uint32]uint32) (bool, error) {
+func resendProduct(rdb *redis.Client, customerID uint32, orderID uint32, product uint32) (*types.Product, error) {
 	// call stock to decrease stock
 	stockAddress, err := rdb.Get(context.TODO(), "service:stockApi").Result()
 	if err != nil {
@@ -302,7 +304,10 @@ func resendProduct(rdb *redis.Client, customerID uint32, orderID uint32, product
 
 	fmt.Println("stockClient successful.", stockClient)
 
-	// TODO
-	//_, err = stockClient.DecreaseStock(context.Background(), &stockApi.IncreaseStockRequest{Products: products})
-	return true, nil
+	res, err := stockClient.DecreaseProduct(context.Background(), &stockApi.DecreaseProductRequest{ProductId: product, Amount: 1})
+	if err != nil {
+		return nil, fmt.Errorf("could not reserve product try again later: %v", err)
+	}
+	fmt.Println("Got product from stock: ", product)
+	return res.GetProduct(), nil
 }

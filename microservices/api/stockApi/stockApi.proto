@@ -37,3 +37,12 @@ message OrderProductsReply {
     bool received = 1;
 }
 
+message DecreaseProductRequest {
+    uint32 productId = 1;
+    uint32 amount = 2;
+}
+
+message DecreaseProductReply {
+    types.Product product = 1;
+}
+
