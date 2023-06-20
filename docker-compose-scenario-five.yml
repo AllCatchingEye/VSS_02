@@ -1,0 +1,109 @@
+version: "3"
+services:
+    nats:
+        image: gitlab.lrz.de:5005/vss/misc/example-microservices/dependency/nats
+    redis:
+        image: gitlab.lrz.de:5005/vss/misc/example-microservices/dependency/redis
+        environment:
+            - ALLOW_EMPTY_PASSWORD=yes
+
+    logger:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/logger
+        build:
+            dockerfile: docker/Dockerfile.logger
+            context: .
+        depends_on:
+            - nats
+        command:
+            -nats nats:4222
+
+    customer:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/customer
+        build:
+            dockerfile: docker/Dockerfile.customer
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -host customer
+            -nats nats:4222
+            -redis redis:6379
+
+    order:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/order
+        build:
+            dockerfile: docker/Dockerfile.order
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -host order
+            -nats nats:4222
+            -redis redis:6379
+
+    payment:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/payment
+        build:
+            dockerfile: docker/Dockerfile.payment
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -host payment
+            -nats nats:4222
+            -redis redis:6379
+
+    shipment:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/shipment
+        build:
+            dockerfile: docker/Dockerfile.shipment
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -host shipment
+            -nats nats:4222
+            -redis redis:6379
+
+    stock:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/stock
+        build:
+            dockerfile: docker/Dockerfile.stock
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -host stock
+            -nats nats:4222
+            -redis redis:6379
+
+    supplier:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/service/supplier
+        build:
+            dockerfile: docker/Dockerfile.supplier
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -host supplier
+            -nats nats:4222
+            -redis redis:6379
+
+    client:
+        image: gitlab.lrz.de:5005/vss/semester/ob-23ss/blatt-2/blatt2-grp06/microservices/client/client
+        build:
+            dockerfile: docker/Dockerfile.client
+            context: .
+        depends_on:
+            - nats
+            - redis
+        command:
+            -nats nats:4222
+            -redis redis:6379
+            -scene 5

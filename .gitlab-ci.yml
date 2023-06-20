@@ -50,8 +50,8 @@ szenario1:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose build
-        - docker-compose up --abort-on-container-exit --exit-code-from=client -e SCENARIO=1
+        - docker-compose -f docker-compose-scenario-one.yml build
+        - docker-compose -f docker-compose-scenario-one.yml up --abort-on-container-exit --exit-code-from=client
 
 
 
@@ -68,8 +68,8 @@ szenario2:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose build
-        - docker-compose up --abort-on-container-exit --exit-code-from=client -e SCENARIO=2
+        - docker-compose -f docker-compose-scenario-two.yml build
+        - docker-compose -f docker-compose-scenario-two.yml up --abort-on-container-exit --exit-code-from=client
 
 szenario3:
     stage: run
@@ -84,5 +84,37 @@ szenario3:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose build
-        - docker-compose up --abort-on-container-exit --exit-code-from=client -e SCENARIO=3
+        - docker-compose -f docker-compose-scenario-three.yml build
+        - docker-compose up --abort-on-container-exit --exit-code-from=client
+
+szenario4:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f docker-compose-scenario-four.yml build
+        - docker-compose -f docker-compose-scenario-four.yml up --abort-on-container-exit --exit-code-from=client
+
+szenario5:
+    stage: run
+    image: gitlab.lrz.de:5005/hm/dockerhub/docker/compose:latest
+    services:
+        - name: gitlab.lrz.de:5005/hm/dockerhub/docker:dind
+          alias: thedockerhost
+          entrypoint: ["dockerd-entrypoint.sh", "--tls=false"]
+    variables:
+        DOCKER_HOST: tcp://thedockerhost:2375/
+        DOCKER_DRIVER: overlay2
+        DOCKER_TLS_CERTDIR: ""
+    script:
+        - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+        - docker-compose -f docker-compose-scenario-five.yml build
+        - docker-compose -f docker-compose-scenario-five.yml up --abort-on-container-exit --exit-code-from=client

@@ -16,7 +16,7 @@ func main() {
 	time.Sleep(10 * time.Second)
 
 	fmt.Println("loading environment variables...")
-	scenario := os.Getenv("SCENARIO")
+	scenario := flag.String("scene", "1", "switch between scnearios 1-5")
 	fmt.Println("Found scenario: ", scenario)
 
 	flagRedis := flag.String("redis", "127.0.0.1:6379", "customerAddress and port of Redis server")
@@ -36,7 +36,7 @@ func main() {
 	}
 	defer nc.Close()
 
-	switch scenario {
+	switch *scenario {
 	case "1":
 		// run scenario1
 		fmt.Println("##########################################")
