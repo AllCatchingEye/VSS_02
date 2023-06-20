@@ -33,6 +33,7 @@ service PaymentService {
 service ShipmentService {
     rpc ShipMyOrder (shipmentApi.ShipMyOrderRequest) returns (shipmentApi.ShipMyOrderReply){}
     rpc IsOrderShipped (shipmentApi.IsOrderShippedRequest) returns (shipmentApi.IsOrderShippedReply){}
+    rpc RetourMyOrder (shipmentApi.RetoureRequest) returns (shipmentApi.RetoureReply){}
 }
 
 service StockService {

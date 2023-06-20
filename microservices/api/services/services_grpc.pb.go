@@ -630,6 +630,7 @@ var PaymentService_ServiceDesc = grpc.ServiceDesc{
 const (
 	ShipmentService_ShipMyOrder_FullMethodName    = "/services.ShipmentService/ShipMyOrder"
 	ShipmentService_IsOrderShipped_FullMethodName = "/services.ShipmentService/IsOrderShipped"
+	ShipmentService_RetourMyOrder_FullMethodName  = "/services.ShipmentService/RetourMyOrder"
 )
 
 // ShipmentServiceClient is the client API for ShipmentService service.
@@ -638,6 +639,7 @@ const (
 type ShipmentServiceClient interface {
 	ShipMyOrder(ctx context.Context, in *shipmentApi.ShipMyOrderRequest, opts ...grpc.CallOption) (*shipmentApi.ShipMyOrderReply, error)
 	IsOrderShipped(ctx context.Context, in *shipmentApi.IsOrderShippedRequest, opts ...grpc.CallOption) (*shipmentApi.IsOrderShippedReply, error)
+	RetourMyOrder(ctx context.Context, in *shipmentApi.RetoureRequest, opts ...grpc.CallOption) (*shipmentApi.RetoureReply, error)
 }
 
 type shipmentServiceClient struct {
@@ -666,12 +668,22 @@ func (c *shipmentServiceClient) IsOrderShipped(ctx context.Context, in *shipment
 	return out, nil
 }
 
+func (c *shipmentServiceClient) RetourMyOrder(ctx context.Context, in *shipmentApi.RetoureRequest, opts ...grpc.CallOption) (*shipmentApi.RetoureReply, error) {
+	out := new(shipmentApi.RetoureReply)
+	err := c.cc.Invoke(ctx, ShipmentService_RetourMyOrder_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ShipmentServiceServer is the server API for ShipmentService service.
 // All implementations must embed UnimplementedShipmentServiceServer
 // for forward compatibility
 type ShipmentServiceServer interface {
 	ShipMyOrder(context.Context, *shipmentApi.ShipMyOrderRequest) (*shipmentApi.ShipMyOrderReply, error)
 	IsOrderShipped(context.Context, *shipmentApi.IsOrderShippedRequest) (*shipmentApi.IsOrderShippedReply, error)
+	RetourMyOrder(context.Context, *shipmentApi.RetoureRequest) (*shipmentApi.RetoureReply, error)
 	mustEmbedUnimplementedShipmentServiceServer()
 }
 
@@ -684,6 +696,9 @@ func (UnimplementedShipmentServiceServer) ShipMyOrder(context.Context, *shipment
 }
 func (UnimplementedShipmentServiceServer) IsOrderShipped(context.Context, *shipmentApi.IsOrderShippedRequest) (*shipmentApi.IsOrderShippedReply, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsOrderShipped not implemented")
+}
+func (UnimplementedShipmentServiceServer) RetourMyOrder(context.Context, *shipmentApi.RetoureRequest) (*shipmentApi.RetoureReply, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RetourMyOrder not implemented")
 }
 func (UnimplementedShipmentServiceServer) mustEmbedUnimplementedShipmentServiceServer() {}
 
@@ -734,6 +749,24 @@ func _ShipmentService_IsOrderShipped_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ShipmentService_RetourMyOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(shipmentApi.RetoureRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ShipmentServiceServer).RetourMyOrder(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ShipmentService_RetourMyOrder_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ShipmentServiceServer).RetourMyOrder(ctx, req.(*shipmentApi.RetoureRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ShipmentService_ServiceDesc is the grpc.ServiceDesc for ShipmentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -748,6 +781,10 @@ var ShipmentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IsOrderShipped",
 			Handler:    _ShipmentService_IsOrderShipped_Handler,
+		},
+		{
+			MethodName: "RetourMyOrder",
+			Handler:    _ShipmentService_RetourMyOrder_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

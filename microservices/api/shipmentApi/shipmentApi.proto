@@ -22,3 +22,14 @@ message IsOrderShippedRequest {
 message IsOrderShippedReply {
     bool isShipped = 1;
 }
+
+message RetoureRequest {
+    uint32 customerId = 1;
+    uint32 orderId = 2;
+    bool wantRefund = 3;
+    map<uint32, uint32> products = 4;
+}
+
+message RetoureReply {
+    bool success = 1;
+}

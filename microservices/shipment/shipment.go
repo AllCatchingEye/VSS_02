@@ -98,6 +98,43 @@ func (state *server) IsOrderShipped(ctx context.Context, req *shipmentApi.IsOrde
 	return &shipmentApi.IsOrderShippedReply{IsShipped: false}, nil
 }
 
+func (state *server) RetourMyOrder(ctx context.Context, req *shipmentApi.RetoureRequest) (*shipmentApi.RetoureReply, error) {
+	fmt.Println("RetourMyOrder called")
+	deadline, ok := ctx.Deadline()
+	if ok {
+		fmt.Println("context deadline is ", deadline)
+	}
+	// Check if customer exists
+	fmt.Println("checking customerID: ", req.GetCustomerId())
+	customer, err := checkCustomerID(state.redis, req.GetCustomerId())
+	if err != nil {
+		return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not get customer: %v", err)
+	}
+	fmt.Println("Could get customer: ", customer.GetName())
+	// Check if order exists
+	fmt.Println("checking orderID: ", req.GetOrderId())
+	orderID, err := checkOrderID(state.redis, req.GetOrderId(), req.GetCustomerId())
+	if err != nil {
+		return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not get order: %v", err)
+	}
+	fmt.Println("Could get order: ", orderID)
+
+	if req.WantRefund {
+		// call payment service to refund the customer
+		_, err := refundCustomer(state.nats, req.GetCustomerId(), req.GetOrderId(), req.GetProducts())
+		if err != nil {
+			return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not refund customer: %v", err)
+		}
+	} else {
+		// call stock service to send the product
+		_, err := resendProduct(state.redis, req.GetCustomerId(), req.GetOrderId(), req.GetProducts())
+		if err != nil {
+			return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not resend product: %v", err)
+		}
+	}
+	return &shipmentApi.RetoureReply{Success: true}, nil
+}
+
 func main() {
 	flagHost := flag.String("host", "127.0.0.1", "address of shipmentApi service")
 	flagPort := flag.String("port", "50054", "port of shipmentApi service")
@@ -230,4 +267,42 @@ func setDeliveryStatus(redis *redis.Client, orderID uint32) (types.DELIVERY_STAT
 		return 0, fmt.Errorf("could not set payment status of order with ID %v: %v", orderID, err)
 	}
 	return res.GetDeliveryStatus(), nil
+}
+
+func refundCustomer(nc *nats.Conn, customerID uint32, orderID uint32, products map[uint32]uint32) (bool, error) {
+	// Publish refund message
+	err := nc.Publish("pay.refund", []byte(fmt.Sprintf("%v %v %v", customerID, orderID, products)))
+	if err != nil {
+		return false, fmt.Errorf("shipmentApi: cannot publish event")
+	}
+	return true, nil
+}
+
+func resendProduct(rdb *redis.Client, customerID uint32, orderID uint32, products map[uint32]uint32) (bool, error) {
+	// call stock to decrease stock
+	stockAddress, err := rdb.Get(context.TODO(), "service:stockApi").Result()
+	if err != nil {
+		log.Fatalf("error while trying to get the stock service address %v", err)
+	}
+	fmt.Println("stockAddress successful.")
+
+	stockConn, err := grpc.Dial(stockAddress, grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock())
+	if err != nil {
+		log.Fatalf("did not connect to stock service: %v", err)
+	}
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Fatalf("error while closing the connection to stock service %v", err)
+		}
+	}(stockConn)
+	fmt.Println("stockConn successful.")
+
+	stockClient := services.NewStockServiceClient(stockConn)
+
+	fmt.Println("stockClient successful.", stockClient)
+
+	// TODO
+	//_, err = stockClient.DecreaseStock(context.Background(), &stockApi.IncreaseStockRequest{Products: products})
+	return true, nil
 }
