@@ -33,7 +33,8 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req)
+	fmt.Println("CustomerID is: ", req.GetCustomerId())
+	fmt.Println("Products are: ", req.GetProducts())
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")
@@ -62,13 +63,11 @@ func (state *server) NewOrder(ctx context.Context, req *orderApi.NewOrderRequest
 	}
 	orderId := generateUniqueOrderID(state.orders)
 	state.orders[orderId] = order
-	// call stock to reserve products
+	// Publish message for stock service
 	err = state.nats.Publish("sto.order", []byte(fmt.Sprintf("orderId %v", orderId)))
-	//res, err := callStock(state.redis, orderId, order.GetProducts(), productsStatus)
 	if err != nil {
 		return nil, err
 	}
-	//fmt.Println("Stock received request: ", res)
 	state.orders[orderId] = order
 	return &orderApi.NewOrderReply{OrderId: orderId, Order: order}, nil
 }
@@ -79,7 +78,8 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req)
+	fmt.Println("OrderID is: ", req.GetOrderId())
+	fmt.Println("CustomerID is: ", req.GetCustomerId())
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")
@@ -99,7 +99,7 @@ func (state *server) GetOrder(ctx context.Context, req *orderApi.GetOrderRequest
 	if !ok {
 		return nil, fmt.Errorf("orderApi not found")
 	}
-	fmt.Println("ORDER: products: ", order.GetProducts())
+	fmt.Println("Order with ID ", orderID, " has products: ", order.GetProducts())
 	return &orderApi.GetOrderReply{OrderId: orderID, Order: order}, nil
 }
 
@@ -109,7 +109,7 @@ func (state *server) SetOrderStatus(ctx context.Context, req *orderApi.SetOrderS
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req)
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")
@@ -129,7 +129,7 @@ func (state *server) SetPaymentStatus(ctx context.Context, req *orderApi.SetPaym
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req)
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")
@@ -149,7 +149,7 @@ func (state *server) SetDeliveryStatus(ctx context.Context, req *orderApi.SetDel
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req)
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.orderApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.orderApi: cannot publish event")

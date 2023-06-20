@@ -34,7 +34,7 @@ func (state *server) ShipMyOrder(ctx context.Context, req *shipmentApi.ShipMyOrd
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetOrderId())
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.shipmentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("shipmentApi: cannot publish event")
@@ -71,7 +71,7 @@ func (state *server) IsOrderShipped(ctx context.Context, req *shipmentApi.IsOrde
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetOrderId())
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.shipmentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("shipmentApi: cannot publish event")

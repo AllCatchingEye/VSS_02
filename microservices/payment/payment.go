@@ -36,7 +36,7 @@ func (state *server) PayMyOrder(ctx context.Context, req *paymentApi.PayMyOrderR
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetOrderId())
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.paymentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.paymentApi: cannot publish event")
@@ -72,7 +72,7 @@ func (state *server) IsOrderPayed(ctx context.Context, req *paymentApi.IsOrderPa
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetOrderId())
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.paymentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.paymentApi: cannot publish event")
@@ -99,7 +99,7 @@ func (state *server) RefundMyOrder(ctx context.Context, req *paymentApi.RefundMy
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetOrderId())
+	fmt.Println("OrderID is: ", req.GetOrderId())
 	err := state.nats.Publish("log.paymentApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("log.paymentApi: cannot publish event")
@@ -151,7 +151,7 @@ func main() {
 	})
 
 	go func() {
-		fmt.Println("starting to update redis for paymentApi service")
+		fmt.Println("starting to update redis")
 		for {
 			rdb.Set(context.TODO(), "service:paymentApi", address, 13*time.Second)
 			time.Sleep(10 * time.Second)
@@ -166,7 +166,7 @@ func main() {
 
 	subscription, err := nc.Subscribe("pay.refund", func(m *nats.Msg) {
 		fmt.Println("got message on pay.refund")
-		fmt.Println(string(m.Data))
+		fmt.Println("Message is: ", string(m.Data))
 		message := strings.Split(string(m.Data), " ")
 		customerIDString := message[0]
 		customerID, _ := strconv.ParseUint(customerIDString, 10, 32)
@@ -175,7 +175,7 @@ func main() {
 		// Get customer
 		customer, err := checkCustomerID(rdb, uint32(customerID))
 		if err != nil {
-			fmt.Println("could not get customer: ", err)
+			fmt.Println("Could not get customer: ", err)
 		} else {
 			product := getProduct(rdb, uint32(productID))
 			fmt.Println("Could get customer: ", customer.GetName())
@@ -228,7 +228,7 @@ func checkCustomerID(redis *redis.Client, customerID uint32) (*types.Customer, e
 	customerClient := services.NewCustomerServiceClient(customerConn)
 	fmt.Println("customerClient successful.")
 	res, err := customerClient.GetCustomer(context.Background(), &customerApi.GetCustomerRequest{CustomerId: customerID})
-	fmt.Println("checking customerID finished.")
+	fmt.Println("Could get customer: ", res.GetCustomer().GetName())
 	if err != nil {
 		return nil, fmt.Errorf("customer with ID %v does not exist: %v", customerID, err)
 	}

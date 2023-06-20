@@ -30,7 +30,7 @@ func (state *server) AddCustomer(ctx context.Context, req *customerApi.AddCustom
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetCustomer())
+	fmt.Println("Customer is: ", req.GetCustomer())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("cannot publish event")
@@ -48,7 +48,7 @@ func (state *server) GetCustomer(ctx context.Context, req *customerApi.GetCustom
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println("Received customerID: ", req.GetCustomerId())
+	fmt.Println("CustomerID is: ", req.GetCustomerId())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("cannot publish event")
@@ -68,7 +68,7 @@ func (state *server) RemoveCustomer(ctx context.Context, req *customerApi.Remove
 	if ok {
 		fmt.Println("context deadline is ", deadline)
 	}
-	fmt.Println(req.GetCustomerId())
+	fmt.Println("CustomerID is: ", req.GetCustomerId())
 	err := state.nats.Publish("log.customerApi", []byte(fmt.Sprintf("got message %v", reflect.TypeOf(req))))
 	if err != nil {
 		log.Print("cannot publish event")
@@ -120,7 +120,7 @@ func main() {
 	defer nc.Close()
 
 	services.RegisterCustomerServiceServer(s, &server{redis: rdb, nats: nc, customers: make(map[uint32]*types.Customer)})
-	fmt.Println("creating customerApi service finished")
+	fmt.Println("creating customer service finished")
 
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
