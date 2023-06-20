@@ -128,7 +128,7 @@ func (state *server) RetourMyOrder(ctx context.Context, req *shipmentApi.Retoure
 		}
 	} else {
 		// call stock service to send the product
-		product, err := resendProduct(state.redis, req.GetCustomerId(), req.GetOrderId(), req.GetProduct())
+		product, err := resendProduct(state.redis, req.GetProduct())
 		if err != nil {
 			return &shipmentApi.RetoureReply{Success: false}, fmt.Errorf("could not resend product try again later: %v", err)
 		}
@@ -280,7 +280,7 @@ func refundCustomer(nc *nats.Conn, customerID uint32, orderID uint32, product ui
 	return true, nil
 }
 
-func resendProduct(rdb *redis.Client, customerID uint32, orderID uint32, product uint32) (*types.Product, error) {
+func resendProduct(rdb *redis.Client, product uint32) (*types.Product, error) {
 	// call stock to decrease stock
 	stockAddress, err := rdb.Get(context.TODO(), "service:stockApi").Result()
 	if err != nil {
