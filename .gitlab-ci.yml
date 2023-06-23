@@ -50,7 +50,6 @@ szenario1:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose -f docker-compose-scenario-one.yml build
         - docker-compose -f docker-compose-scenario-one.yml up --abort-on-container-exit --exit-code-from=client
 
 
@@ -68,7 +67,6 @@ szenario2:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose -f docker-compose-scenario-two.yml build
         - docker-compose -f docker-compose-scenario-two.yml up --abort-on-container-exit --exit-code-from=client
 
 szenario3:
@@ -84,7 +82,6 @@ szenario3:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose -f docker-compose-scenario-three.yml build
         - docker-compose -f docker-compose-scenario-three.yml up --abort-on-container-exit --exit-code-from=client
 
 szenario4:
@@ -100,7 +97,6 @@ szenario4:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose -f docker-compose-scenario-four.yml build
         - docker-compose -f docker-compose-scenario-four.yml up --abort-on-container-exit --exit-code-from=client
 
 szenario5:
@@ -116,5 +112,4 @@ szenario5:
         DOCKER_TLS_CERTDIR: ""
     script:
         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
-        - docker-compose -f docker-compose-scenario-five.yml build
         - docker-compose -f docker-compose-scenario-five.yml up --abort-on-container-exit --exit-code-from=client
